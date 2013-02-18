@@ -14,4 +14,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^(?P<code>[^\.]+)/(?P<slug>[^\.]+)', ('rss.views.view_article')),
+    url(r'^(?P<code>[^\.]+)/', ('rss.views.view_language')),
 )
