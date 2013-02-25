@@ -20,7 +20,7 @@ div.node ol {
 div.node div {
   display: block;
 }
-div.hidden {
+div.english {
   color:#fff;
 }
 {% endblock %}
@@ -45,7 +45,6 @@ var build = function () {
         .html(words[i].native+' ');
       var english = $('<div>')
         .addClass('english')
-        .addClass('hidden')
         .html(words[i].english+' ');
       ol = $('<ol>');
       node.append(ol);
@@ -60,7 +59,11 @@ var build = function () {
     if (!node.hasClass('node')) {
       node = node.parents('div.node')
     }
-    $('div.word_'+words[node.attr('id').split('_')[1]].word_id).find('div.english').removeClass('hidden');
+    var copies = $('div.word_'+words[node.attr('id').split('_')[1]].word_id).find('div.english');
+    copies.animate({'color':'#333'}, 1000)
+    setTimeout(function(){
+      copies.animate({'color':'#fff'}, 4000)
+    }, 2000);
   });
 };
 words = {

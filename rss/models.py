@@ -111,9 +111,9 @@ class ParsedArticle(models.Model):
       words.append((pointer.word.english_text, pointer.word.native_text, str(pointer.word.id), str(node_id)))
       pointer = pointer.next.get()
       node_id += 1
-      if node_id == 40:
-        continue
-      #  break
+      if node_id == 140:
+      #  continue
+        break
     return words
 
 class WordInArticle(models.Model):
