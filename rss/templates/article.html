@@ -2,5 +2,8 @@
 {% block title %} {{ article.title }} {% endblock %}
 
 {% block content %} 
-  {{ article.body}} 
+  {% for english, native, word_id in article.text %}
+  <span id = '{{word_id}}'>{{ native }} </span>
+  {% endblock %}
 {% endblock %}
+
