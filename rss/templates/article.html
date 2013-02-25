@@ -33,6 +33,7 @@ div.english {
 (function (){
 var words;
 var article;
+var already_translated = {};
 var build = function () {
   var article = $('#article')
     for (var i=0; typeof(words[i]) != 'undefined'; i++){
@@ -59,11 +60,17 @@ var build = function () {
     if (!node.hasClass('node')) {
       node = node.parents('div.node')
     }
-    var copies = $('div.word_'+words[node.attr('id').split('_')[1]].word_id).find('div.english');
+    var word_id = words[node.attr('id').split('_')[1]].word_id
+    var copies = $('div.word_'+word_id).find('div.english');
     copies.animate({'color':'#333'}, 1000)
-    setTimeout(function(){
-      copies.animate({'color':'#fff'}, 4000)
-    }, 2000);
+    if (already_translated[word_id] === 1){
+      already_translated[word_id] = 1;
+    } else {
+      setTimeout(function(){
+        copies.animate({'color':'#fff'}, 4000)
+      }, 2000);
+      already_translated[word_id] = 1;
+    }
   });
 };
 words = {

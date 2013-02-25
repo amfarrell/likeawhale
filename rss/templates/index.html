@@ -6,7 +6,7 @@
 {% if languages%}
 <ul>
 {% for language in languages %}
-<li><a href="{{ language.get_absolute_url }}">{{ language.title }}</a></li>
+<li><a href="{{ language.get_absolute_url }}">{{ language.name.capitalize }}</a></li>
 {% endfor %}
 </ul>
 {% else %}
