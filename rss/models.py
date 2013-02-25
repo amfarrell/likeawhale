@@ -33,7 +33,18 @@ class Article(models.Model):
   def __unicode__(self):
     return '%s' % self.title
 
-  def parse(self, dest_lang):
+  def parsed_article(self, dest_lang = 'en'):
+    if dest_lang != 'en':
+      raise NotImplementedError("Only English translation for now.")
+    dest_lang = Language.objects.get(code = dest_lang) #TODO: make this resilient.
+    pa = ParsedArticle.objects.filter(original_article = self, dest_lang = dest_lang)
+    if pa.count():
+      return pa.get()
+    else:
+      return self.parse(dest_lang)
+
+
+  def parse(self, dest_lang = 'en'):
     if dest_lang != 'en':
       raise NotImplementedError("Only English translation for now.")
     # todo:
@@ -86,16 +97,23 @@ class ParsedArticle(models.Model):
   first_word = models.ForeignKey(Word)
   dest_lang = models.ForeignKey(Language) #TODO: add en as default.
 
+  @permalink
+  def get_absolute_url(self):
+    return ('rss.views.view_article', None, {'slug': self.original_article.slug, 'code' : self.original_article.source_lang.code})
+
   def text(self):
     #TODO: make this an iterator
     #TODO: make this not terrifyingly inefficient
     words = []
-    word_id = 0
+    node_id = 0
     pointer = WordInArticle.objects.filter(word = self.first_word, article = self).get()
     while pointer.next.count() == 1:
-      words.append((pointer.word.english_text, pointer.word.native_text, 'word_'+str(word_id)))
+      words.append((pointer.word.english_text, pointer.word.native_text, str(pointer.word.id), str(node_id)))
       pointer = pointer.next.get()
-      word_id += 1
+      node_id += 1
+      if node_id == 40:
+        continue
+      #  break
     return words
 
 class WordInArticle(models.Model):
