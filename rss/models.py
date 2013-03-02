@@ -112,8 +112,8 @@ class ParsedArticle(models.Model):
       pointer = pointer.next.get()
       node_id += 1
       if node_id == 140:
-      #  continue
-        break
+        continue
+      #  break
     return words
 
 class WordInArticle(models.Model):

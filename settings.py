@@ -151,3 +151,5 @@ LOGGING = {
         },
     }
 }
+
+GOOGLE_TRANSLATE_API_KEY = 'AIzaSyDphS1-SbMfWAlfnwQHQ4BY-j9klXTUMNM'
