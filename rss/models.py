@@ -1,8 +1,9 @@
 from django.db import models
 from django.db.models import permalink
 
-from nltk import word_tokenize, sent_tokenize #wordpunct_tokenize
 from itertools import chain
+from nltk import word_tokenize
+from nltk import sent_tokenize #wordpunct_tokenize
 from nltk import SnowballStemmer
 
 class Language(models.Model):
@@ -34,10 +35,11 @@ class Article(models.Model):
     return '%s' % self.title
 
   def parsed_article(self, dest_lang = 'en'):
+    raise NotImplementedError
     if dest_lang != 'en':
       raise NotImplementedError("Only English translation for now.")
     dest_lang = Language.objects.get(code = dest_lang) #TODO: make this resilient.
-    pa = ParsedArticle.objects.filter(original_article = self, dest_lang = dest_lang)
+    pa = Translation.objects.filter(original_article = self, dest_lang = dest_lang)
     if pa.count():
       return pa.get()
     else:
@@ -45,6 +47,7 @@ class Article(models.Model):
 
 
   def parse(self, dest_lang = 'en'):
+    raise NotImplementedError
     if dest_lang != 'en':
       raise NotImplementedError("Only English translation for now.")
     # todo:
@@ -66,7 +69,7 @@ class Article(models.Model):
         current_word = current_word.get()
 
       if i == 0:
-        pa = ParsedArticle.objects.create(original_article = self, dest_lang = dest_lang, first_word = current_word)
+        pa = Translation.objects.create(original_article = self, dest_lang = dest_lang, first_word = current_word)
       if bool(old_index): 
         current_index = WordInArticle.objects.create(word_id = current_word.id, article_id = pa.id, prev_id = old_index.id)
       else:
@@ -82,43 +85,52 @@ class Article(models.Model):
   def get_absolute_url(self):
     return ('rss.views.view_article', None, {'slug': self.slug, 'code' : self.source_lang.code})
 
-class Word(models.Model):
-  native_text = models.CharField(max_length = 124)
-  native_stem = models.CharField(max_length = 124)
-  native_language = models.ForeignKey('rss.Language')
-  english_text = models.CharField(max_length = 124)
-  #TODO: replace with wordtranslation M2M field to different languages.
+ELEMENT_TYPES = (('CAPTION', 'caption'), ('TITLE', 'title'), ('SUBTITLE', 'subtitle'), ('BLOCKQUOTE', 'blockquote'), ('PARAGRAPH', 'paragraph'))
+class LayoutElement(models.Model):
+  """An element in the display of the text of the article. Contains styling info and text"""
+  article = models.ForeignKey(Article)
+  text = models.TextField()
+  element_type = models.CharField(
+    choices = ELEMENT_TYPES,
+    max_LENGTH = 10
+  )
+  #TODO: add images
 
-class ParsedArticle(models.Model):
+
+class Translation(models.Model):
   """
   An article prepared to be read by someone in a foreign language.
   """
   original_article = models.ForeignKey(Article)
-  first_word = models.ForeignKey(Word)
   dest_lang = models.ForeignKey(Language) #TODO: add en as default.
 
   @permalink
   def get_absolute_url(self):
     return ('rss.views.view_article', None, {'slug': self.original_article.slug, 'code' : self.original_article.source_lang.code})
 
-  def text(self):
-    #TODO: make this an iterator
-    #TODO: make this not terrifyingly inefficient
-    words = []
-    node_id = 0
-    pointer = WordInArticle.objects.filter(word = self.first_word, article = self).get()
-    while pointer.next.count() == 1:
-      words.append((pointer.word.english_text, pointer.word.native_text, str(pointer.word.id), str(node_id)))
-      pointer = pointer.next.get()
-      node_id += 1
-      if node_id == 140:
-        continue
-      #  break
-    return words
+class Stem(models.Model):
+  native_text = models.CharField(max_length = 124)
+  native_language = models.ForeignKey('rss.Language')
 
-class WordInArticle(models.Model):
-  # I suspect that creating a doubly-linked-list in the database is going to be terrifyingly inefficient.
-  # The query over it certainly is.
-  word = models.ForeignKey(Word)
-  article = models.ForeignKey(ParsedArticle)
-  prev = models.ForeignKey('rss.WordInArticle', related_name = 'next', blank = True, null = True)
+class Word(models.Model):
+  native_text = models.CharField(max_length = 124)
+  native_stem = models.ForeignKey(Stem)
+  native_language = models.ForeignKey('rss.Language')
+
+class TranslatedPhrase(models.Model):
+  represents_first = models.ForeignKey(Word)
+  represents_second = models.ForeignKey(Word, null = True, blank = True)
+  represents_third = models.ForeignKey(Word, null = True, blank = True)
+  using_first = models.ForeignKey(Word)
+  using_second = models.ForeignKey(Word, null = True, blank = True)
+  using_third = models.ForeignKey(Word, null = True, blank = True)
+
+class PhraseInTranslation(models.Model):
+  displays_as = models.ForeignKey(LayoutElement)
+  previous = models.ForeignKey('models.PhraseInTranslation', related_name = 'next', null = True, blank = True, on_delete = models.SET_NULLlower )
+  part_of = models.ForeignKey(Translation)
+  #TODO: Constraint that the translation's article is the same as the layout's article.
+  phrase = models.ForeignKey(TranslatedPhrase)
+  end_punctuation = models.Charfield(max_length = 4)
+  start_punctuation = models.Charfield(max_length = 4)
+  position = models.IntegerField() #TODO: add a check that the previous always has a position lower by 1 and is part of the same document.
