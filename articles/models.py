@@ -113,11 +113,21 @@ class Translation(models.Model):
 class Stem(models.Model):
   native_text = models.CharField(max_length = 124)
   native_language = models.ForeignKey('articles.Language')
+  def __unicode__(self):
+    return "%s" % self.native_text
+
+  def __repr__(self):
+    return "[%s] %s" % (self.native_language.code, self.native_text)
 
 class Word(models.Model):
   native_text = models.CharField(max_length = 124)
   native_stem = models.ForeignKey(Stem)
   native_language = models.ForeignKey('articles.Language')
+  def __repr__(self):
+    return "[%s] %s" % (self.native_language.code, self.native_text)
+
+  def __unicode__(self):
+    return "%s" % self.native_text
 
 class TranslatedPhrase(models.Model):
   #TODO: constrain that these words are all the same language.
@@ -128,6 +138,18 @@ class TranslatedPhrase(models.Model):
   using_first = models.ForeignKey(Word, related_name = "first_in_phrase")
   using_second = models.ForeignKey(Word, related_name = "second_in_phrase", null = True, blank = True)
   using_third = models.ForeignKey(Word, related_name = "third_in_phrase", null = True, blank = True)
+
+  def __unicode__(self):
+    def ifthere(word):
+      if word is None:
+        return ''
+      else:
+        return ' %s' % word
+    return '[%s] %s%s%s -> [%s] %s%s%s' % (self.represents_first.native_language.code, self.represents_first, 
+                      ifthere(self.represents_second), ifthere(self.represents_third),
+                    self.using_first.native_language.code, self.using_first,
+                      ifthere(self.using_second), ifthere(self.using_third))
+
 
 class PhraseInTranslation(models.Model):
   displays_as = models.ForeignKey(LayoutElement)
