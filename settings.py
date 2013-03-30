@@ -12,9 +12,9 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'likeawhale',                              # Or path to database file if using sqlite3.
-        'USER': 'likeawhale',                                     # Not used with sqlite3.
-        'PASSWORD': 'inallcriminalprosecutions',                  # Not used with sqlite3.
+        'NAME': 'decodering',                              # Or path to database file if using sqlite3.
+        'USER': 'decodering',                                     # Not used with sqlite3.
+        'PASSWORD': 'sekkrit',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -119,7 +119,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
-    'rss',
+    'articles',
     'south',
 )
 
@@ -152,4 +152,5 @@ LOGGING = {
     }
 }
 
-GOOGLE_TRANSLATE_API_KEY = 'AIzaSyDphS1-SbMfWAlfnwQHQ4BY-j9klXTUMNM'
+#GOOGLE_TRANSLATE_API_KEY = 'AIzaSyDrgCi2QfzE_JeBeuWYFBjnxp-9JARhUho'
+GOOGLE_TRANSLATE_API_KEY = 'AIzaSyCTwFR8WQJ-jMV2BivXa6tfJobS-YZFKrQ'
