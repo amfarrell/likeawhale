@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Clever intro here{% endblock %}
+
+{% block content %}
+<h2>Languages</h2>
+{% if languages%}
+<ul>
+{% for language in languages %}
+<li><a href="{{ language.get_absolute_url }}">{{ language.name.capitalize }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>There are no articles.</p>
+{% endif %}
+
+<h2>articles</h2>
+{% if articles %}
+<ul>
+{% for article in articles %}
+<li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>There are no articles.</p>
+{% endif %}
+
+{% endblock %}
