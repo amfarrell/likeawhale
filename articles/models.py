@@ -129,26 +129,31 @@ class Word(models.Model):
   def __unicode__(self):
     return "%s" % self.native_text
 
+def ifthere(word):
+  if word is None:
+    return ''
+  else:
+    return ' %s' % word
+
 class TranslatedPhrase(models.Model):
   #TODO: constrain that these words are all the same language.
-  represents_first = models.ForeignKey(Word, related_name = "first_represented_by")
-  represents_second = models.ForeignKey(Word, related_name = "second_represented_by", null = True, blank = True)
-  represents_third = models.ForeignKey(Word, related_name = "third_represented_by", null = True, blank = True)
+  first_target = models.ForeignKey(Word, related_name = "first_target_in")
+  second_target = models.ForeignKey(Word, related_name = "second_target_in", null = True, blank = True)
+  third_target = models.ForeignKey(Word, related_name = "third_target_in", null = True, blank = True)
   #TODO: constrain that these words are all the same language.
-  using_first = models.ForeignKey(Word, related_name = "first_in_phrase")
-  using_second = models.ForeignKey(Word, related_name = "second_in_phrase", null = True, blank = True)
-  using_third = models.ForeignKey(Word, related_name = "third_in_phrase", null = True, blank = True)
+  first_native = models.ForeignKey(Word, related_name = "first_native_in")
+  second_native = models.ForeignKey(Word, related_name = "second_native_in", null = True, blank = True)
+  third_native = models.ForeignKey(Word, related_name = "third_native_in", null = True, blank = True)
+
+  def source_text(self):
+    return '%s%s%s' % (self.first_native, ifthere(self.second_native), ifthere(self.third_native))
+
+  def resulting_text(self):
+    return '%s%s%s' % (self.first_target, ifthere(self.second_target), ifthere(self.third_target))
 
   def __unicode__(self):
-    def ifthere(word):
-      if word is None:
-        return ''
-      else:
-        return ' %s' % word
-    return '[%s] %s%s%s -> [%s] %s%s%s' % (self.represents_first.native_language.code, self.represents_first, 
-                      ifthere(self.represents_second), ifthere(self.represents_third),
-                    self.using_first.native_language.code, self.using_first,
-                      ifthere(self.using_second), ifthere(self.using_third))
+    return '[%s] %s -> [%s] %s' % (self.represents_first.native_language.code, self.source_text(),
+                                           self.using_first.native_language.code, self.resulting_text())
 
 
 class PhraseInTranslation(models.Model):
