@@ -12,10 +12,10 @@ def index(request):
 
 def view_article(request, code, slug):
   article = get_object_or_404(Article, slug = slug)
-  parsed_article = article.parsed_article()
+  translation = article.translated_to(code)
   return render_to_response('article.html', {
     'article': article,
-    'parsed_article': parsed_article
+    'translation': translation
     })
 
 def view_language(request, code):

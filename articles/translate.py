@@ -9,9 +9,9 @@ from settings import GOOGLE_TRANSLATE_API_KEY
 service = apiclient.discovery.build('translate', 'v2', developerKey=GOOGLE_TRANSLATE_API_KEY)
 
 def translate_word(native_text, native_language, target_language = 'en'):
-  if type(target_language) is not str:
+  if not isinstance(target_language, basestring):
     target_language = target_language.code
-  if type(native_language) is not str:
+  if not isinstance(native_language, basestring):
     native_language = native_language.code
   target_text = service.translations().list(source = native_language,
                               target = target_language,

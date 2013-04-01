@@ -3,6 +3,7 @@ from translate import word_tokenize
 from translate import sent_tokenize #wordpunct_tokenize
 from translate import SnowballStemmer
 from translate import translate_word
+from sys import stdout
 
 
 import apiclient.discovery
@@ -12,6 +13,7 @@ from django.db.models import permalink
 
 
 from settings import GOOGLE_TRANSLATE_API_KEY
+from settings import DEBUG
 
 
 service = apiclient.discovery.build('translate', 'v2', developerKey=GOOGLE_TRANSLATE_API_KEY)
@@ -40,38 +42,37 @@ class Article(models.Model):
   source_url = models.CharField(max_length = 2048, unique = True)
   native_language = models.ForeignKey('articles.Language')
 
-  def scentences(self):
+  def sentences(self):
     return sent_tokenize(self.body)
 
   def words(self):
     #TODO inefficient.
-    return [Word.objects.get_or_create(native_language = self.native_language, native_text = text)
-              for text in chain.from_iterable([word_tokenize(t) for t in self.scentences()])]
+    return [Word.objects.get_or_create(native_language = self.native_language, native_text = text)[0]
+              for text in chain.from_iterable([word_tokenize(t) for t in self.sentences()])]
 
-  def translate_to(self, target_langauge = 'en', force = False):
-    raise NotImplementedError
-    if target_langauge.code != 'en':
-      raise NotImplementedError("Only English translation for now.")
-    if type(target_langauge) is str:
-      target_langauge = Language.objects.get(code = target_langauge)
-    trans = Translation.objects.filter(original_article = self, target_langauge = target_langauge)
+  def translated_to(self, target_language = 'en', force = False):
+    if isinstance(target_language, basestring) :
+      target_language = Language.objects.get(code = target_language)
+    trans = Translation.objects.filter(original_article = self, target_language = target_language)
     if force:
       trans.delete()
     if trans.exists():
       return trans.get()
     else:
-      return self._translate(target_langauge)
+      return self._translate(target_language)
 
   def _translate(self, target_language):
-    elements = [LayoutElement(article = self, previous = None, position = 0, text = self.text, element_type = 'PARAGRAPH'), ]
+    LayoutElement.objects.filter(article = self, previous = None, position = 0, text = self.body, element_type = 'PARAGRAPH').delete()
+    elements = [LayoutElement.objects.create(article = self, previous = None, position = 0, text = self.body, element_type = 'PARAGRAPH'), ]
     words = self.words() #TODO: make this use iterators.
-    translation = Translation.objects.create(original_article = self, target_language = target_language)
-    phrases = [word.translate_to(target_language) for word in words]
+    translation = Translation.objects.get_or_create(original_article = self, target_language = target_language)[0]
+    phrases = [word.translated_to(target_language) for word in words]
+    import pdb;pdb.set_trace()
     phrases_in_translation = [None,]
-    for phrase, position in enumerate(phrases):
+    for position, phrase in enumerate(phrases):
       phrases_in_translation.append(PhraseInTranslation.objects.create(
         displays_as = elements[0], #TODO: actually pay attention to elements.
-        previous_phrase = phrases_in_translation[-1], 
+        previous = phrases_in_translation[-1], 
         part_of = translation,
         position = position,
         phrase = phrase,
@@ -103,11 +104,14 @@ class Translation(models.Model):
   An article prepared to be read by someone in a foreign language.
   """
   original_article = models.ForeignKey(Article)
-  target_langauge = models.ForeignKey(Language)
+  target_language = models.ForeignKey(Language)
 
   @permalink
   def get_absolute_url(self):
     return ('articles.views.view_article', None, {'slug': self.original_article.slug, 'code' : self.original_article.native_language.code})
+
+  class Meta:
+    unique_together = ('original_article', 'target_language',)
 
 class Stem(models.Model):
   native_text = models.CharField(max_length = 124)
@@ -118,20 +122,23 @@ class Stem(models.Model):
   def __repr__(self):
     return "[%s] %s" % (self.native_language.code, self.native_text)
 
+  class Meta:
+    unique_together = ('native_text', 'native_language',)
+
 class WordManager(models.Manager):
-  def process_kwargs(self, **kwargs):
-    if type(kwargs['native_language']) is str:
-      kwargs['native_langauge'] = Language.objects.get(code = kwargs['native_langauge'])
+  def _process_kwargs(self, kwargs):
+    if isinstance(kwargs['native_language'], basestring) :
+      kwargs['native_language'] = Language.objects.get(code = kwargs['native_language'])
     if kwargs.get('native_stem', None) is None:
       native_stemmer = SnowballStemmer(kwargs['native_language'].name.lower())
-      kwargs['native_stem'] = Stem.objects.get_or_create(native_language = kwargs['native_language'], native_text = native_stemmer.stem(kwargs['native_text']))
+      kwargs['native_stem'] = Stem.objects.get_or_create(native_language = kwargs['native_language'], native_text = native_stemmer.stem(kwargs['native_text']))[0]
     return kwargs
 
   def create(self, **kwargs):
-    return self.get_query_set().get_or_create(**self.process_kwargs(kwargs))
+    return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))
 
-  def get(self, **kwargs):
-    return self.get_query_set().get_or_create(**self.process_kwargs(kwargs))
+  def get_or_create(self, **kwargs):
+    return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))
 
 class Word(models.Model):
   native_text = models.CharField(max_length = 124)
@@ -145,15 +152,26 @@ class Word(models.Model):
   def __unicode__(self):
     return "%s" % self.native_text
 
-  def translate_to(self, target_language = 'en'):
-    if type(target_language) is str:
+  class Meta:
+    unique_together = ('native_text', 'native_language',)
+
+  def translated_to(self, target_language = 'en'):
+    if isinstance(target_language, basestring) :
       target_language = Language.objects.get(code = target_language)
-    target_text = translate_word(self.native_text, self.native_language.code, target_language.code)
-    target_stemmer = SnowballStemmer(target_language.name.lower())
-    target_stem = Stem.objects.create(native_language = target_language, native_text = target_stemmer.stem(target_text))
-    result = Word.objects.get_or_create(native_text = target_text, native_stem = target_stem, native_language = target_language)[0]
-    translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
-    return translation
+    possible = TranslatedPhrase.objects.filter(first_native = self, second_native = None, third_native = None, first_target__native_language = target_language)
+    if possible.exists():
+      if DEBUG:
+        stdout.write(".")
+      return possible.get()
+    else:
+      if DEBUG:
+        stdout.write("|")
+      target_text = translate_word(self.native_text, self.native_language.code, target_language.code)
+      target_stemmer = SnowballStemmer(target_language.name.lower())
+      target_stem = Stem.objects.get_or_create(native_language = target_language, native_text = target_stemmer.stem(target_text))[0]
+      result = Word.objects.get_or_create(native_text = target_text, native_stem = target_stem, native_language = target_language)[0]
+      translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
+      return translation
 
 class TranslatedPhrase(models.Model):
   #TODO: constrain that these words are all the same language.
@@ -172,8 +190,11 @@ class TranslatedPhrase(models.Model):
     return '%s%s%s' % (self.first_target, ifthere(self.second_target), ifthere(self.third_target))
 
   def __unicode__(self):
-    return '[%s] %s -> [%s] %s' % (self.represents_first.native_language.code, self.source_text(),
-                                           self.using_first.native_language.code, self.resulting_text())
+    return '[%s] %s -> [%s] %s' % (self.first_target.native_language.code, self.source_text(),
+                                           self.first_native.native_language.code, self.resulting_text())
+  class Meta:
+    unique_together = ('first_target', 'second_target', 'third_target', 
+                       'first_native', 'second_native', 'third_native')
 
 
 class PhraseInTranslation(models.Model):
@@ -182,6 +203,9 @@ class PhraseInTranslation(models.Model):
   part_of = models.ForeignKey(Translation)
   #TODO: Constraint that the translation's article is the same as the layout's article.
   phrase = models.ForeignKey(TranslatedPhrase)
-  end_punctuation = models.CharField(max_length = 4, null = True, blank = True)
-  start_punctuation = models.CharField(max_length = 4, null = True, blank = True)
+  end_punctuation = models.CharField(max_length = 4, null = True, blank = True, default = '')
+  start_punctuation = models.CharField(max_length = 4, null = True, blank = True, default = '')
   position = models.IntegerField() #TODO: add a check that the previous always has a position lower by 1 and is part of the same document.
+
+  class Meta:
+    unique_together = ('part_of', 'phrase', 'position', 'displays_as')
