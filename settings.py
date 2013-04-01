@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'articles',
+    'accounts',
     'south',
 )
 
@@ -154,3 +155,4 @@ LOGGING = {
 
 #GOOGLE_TRANSLATE_API_KEY = 'AIzaSyDrgCi2QfzE_JeBeuWYFBjnxp-9JARhUho'
 GOOGLE_TRANSLATE_API_KEY = 'AIzaSyCTwFR8WQJ-jMV2BivXa6tfJobS-YZFKrQ'
+LOGIN_URL = '/accounts/login/'

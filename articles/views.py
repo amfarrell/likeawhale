@@ -1,6 +1,11 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
-from articles.models import Language, Article, PhraseInTranslation, Translation
+from django.contrib.auth.models import login_required
+
+from articles.models import Language
+from articles.models import Article
+from articles.models import PhraseInTranslation
+from articles.models import Translation
 
 ARTICLES_PER_PAGE = 5
 
@@ -10,6 +15,7 @@ def index(request):
     'articles': Article.objects.all()[:ARTICLES_PER_PAGE]
     })
 
+@login_required
 def view_article(request, code, slug):
   article = get_object_or_404(Article, slug = slug)
   translation = article.translated_to(code)
@@ -20,11 +26,11 @@ def view_article(request, code, slug):
     'article': article,
     'translation': translation,
     'phrases' : [(
-        pointer._order,                      #node_id
-        pointer.phrase.first_native.pk,             #word_id
-        pointer.phrase.first_native.native_stem.pk, #stem_id
-        pointer.phrase.first_native.native_text,           #native_text
-        pointer.phrase.first_target.native_text,           #target_text
+        pointer._order,                                   #node_id
+        pointer.phrase.first_native.pk,                   #word_id
+        pointer.phrase.first_native.native_stem.pk,       #stem_id
+        pointer.phrase.first_native.native_text,          #native_text
+        pointer.phrase.first_target.native_text,          #target_text
       ) for pointer in pointers]
     })
 

@@ -11,7 +11,6 @@ import apiclient.discovery
 from django.db import models
 from django.db.models import permalink
 
-
 from settings import GOOGLE_TRANSLATE_API_KEY
 from settings import DEBUG
 
@@ -176,13 +175,6 @@ class Word(models.Model):
       result = Word.objects.get_or_create(native_text = target_text, native_stem = target_stem, native_language = target_language)[0]
       translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
       return translation
-
-class UserWordKnowledge(models.Model):
-  #user_id = models.ForeignKey(User)
-  word_id = models.ForeignKey(Word)
-  word = models.CharField(max_length=255)
-  mastery_level = models.IntegerField()
-  view_count = models.IntegerField()
 
 class TranslatedPhrase(models.Model):
   #TODO: constrain that these words are all the same language.
