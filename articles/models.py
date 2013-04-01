@@ -42,6 +42,12 @@ class LayoutElement(models.Model):
   )
   #TODO: add images
 
+class Vector(models.Model):
+  #user_id = models.ForeignKey(User)
+  word_id = models.ForeignKey(Word)
+  word = models.CharField(max_length=255)
+  mastery_level = models.IntegerField()
+  view_count = models.IntegerField()
 
 class Translation(models.Model):
   """
