@@ -177,7 +177,7 @@ class Word(models.Model):
       translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
       return translation
 
-class Vector(models.Model):
+class UserWordKnowledge(models.Model):
   #user_id = models.ForeignKey(User)
   word_id = models.ForeignKey(Word)
   word = models.CharField(max_length=255)
