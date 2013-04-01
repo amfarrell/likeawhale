@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
-from articles.models import Language, Article
+from articles.models import Language, Article, PhraseInTranslation, Translation
 
 ARTICLES_PER_PAGE = 5
 
@@ -13,14 +13,24 @@ def index(request):
 def view_article(request, code, slug):
   article = get_object_or_404(Article, slug = slug)
   translation = article.translated_to(code)
+
+  pointers = PhraseInTranslation.objects.filter(part_of = translation).select_related(
+      'phrase','phrase__first_target','phrase__first_native','phrase__first_target__native_text', 'phrase__first_native__native_text', 'phrase__first_native__native_stem').all()
   return render_to_response('article.html', {
     'article': article,
-    'translation': translation
+    'translation': translation,
+    'phrases' : [(
+        pointer._order,                      #node_id
+        pointer.phrase.first_native.pk,             #word_id
+        pointer.phrase.first_native.native_stem.pk, #stem_id
+        pointer.phrase.first_native.native_text,           #native_text
+        pointer.phrase.first_target.native_text,           #target_text
+      ) for pointer in pointers]
     })
 
 def view_language(request, code):
   language = get_object_or_404(Language, code = code)
   return render_to_response('language.html', {
     'language': language,
-    'articles': Article.objects.filter(source_lang = language)[:ARTICLES_PER_PAGE]
+    'articles': Translation.objects.filter(target_language = language)[:ARTICLES_PER_PAGE]
     })

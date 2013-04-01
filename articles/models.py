@@ -67,7 +67,6 @@ class Article(models.Model):
     words = self.words() #TODO: make this use iterators.
     translation = Translation.objects.get_or_create(original_article = self, target_language = target_language)[0]
     phrases = [word.translated_to(target_language) for word in words]
-    import pdb;pdb.set_trace()
     phrases_in_translation = [None,]
     for position, phrase in enumerate(phrases):
       phrases_in_translation.append(PhraseInTranslation.objects.create(
@@ -97,6 +96,10 @@ class LayoutElement(models.Model):
     max_length = 10
   )
   #TODO: add images
+  class Meta:
+    unique_together = ('article', 'text', 'position', 'element_type')
+    ordering = ['position']
+    order_with_respect_to = 'article'
 
 
 class Translation(models.Model):
@@ -209,3 +212,5 @@ class PhraseInTranslation(models.Model):
 
   class Meta:
     unique_together = ('part_of', 'phrase', 'position', 'displays_as')
+    ordering = ['position']
+    order_with_respect_to = 'part_of'

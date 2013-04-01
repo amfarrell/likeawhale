@@ -74,8 +74,8 @@ var build = function () {
   });
 };
 words = {
-  {% for english, native, word_id, node_id in parsed_article.text %}
-  {{node_id}}: {'word_id': '{{word_id}}', 'native':'{{native}}', 'english':'{{english}}'},
+  {% for node_id, word_id, stem_id, native_text, target_text in phrases %}
+  {{node_id}}: {'word_id': '{{word_id}}', 'native':'{{native_text}}', 'english':'{{target_text}}'},
   {% endfor %}
 }
 build();
