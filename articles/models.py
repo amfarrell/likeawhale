@@ -26,6 +26,7 @@ def ifthere(word):
 class Language(models.Model):
   code = models.CharField(max_length = 8, unique = True)
   name = models.CharField(max_length = 32, unique = True)
+  _has_stemmer = models.BooleanField(default = False)
 
   def __unicode__(self):
     return '%s' % self.name
@@ -33,6 +34,12 @@ class Language(models.Model):
   @permalink
   def get_absolute_url(self):
     return ('articles.views.view_language', None, {'code': self.code})
+
+  def stemmer(self):
+    if self.has_stemmer:
+      return SnowballStemmer(self.name.lower())
+    else:
+      return None
 
 class Article(models.Model):
   title = models.CharField(max_length = 124, unique = True)
@@ -130,9 +137,12 @@ class WordManager(models.Manager):
   def _process_kwargs(self, kwargs):
     if isinstance(kwargs['native_language'], basestring) :
       kwargs['native_language'] = Language.objects.get(code = kwargs['native_language'])
-    if kwargs.get('native_stem', None) is None:
-      native_stemmer = SnowballStemmer(kwargs['native_language'].name.lower())
-      kwargs['native_stem'] = Stem.objects.get_or_create(native_language = kwargs['native_language'], native_text = native_stemmer.stem(kwargs['native_text']))[0]
+    if kwargs['native_language']._has_stemmer:
+      if kwargs.get('native_stem', None) is None:
+        kwargs['native_stem'] = Stem.objects.get_or_create(
+            native_language = kwargs['native_language'],
+            native_text = kwargs['native_stemmer'].stemmer().stem(kwargs['native_text'])
+            )[0]
     return kwargs
 
   def create(self, **kwargs):
@@ -143,9 +153,11 @@ class WordManager(models.Manager):
 
 class Word(models.Model):
   native_text = models.CharField(max_length = 124)
-  native_stem = models.ForeignKey(Stem)
+  native_stem = models.ForeignKey(Stem, blank = True, null = True)
   native_language = models.ForeignKey('articles.Language')
   difficulty = models.IntegerField()
+
+  #maintain the constraint that if the language has a stemmer, the word needs a stem.
 
   objects = WordManager()
 
@@ -170,11 +182,20 @@ class Word(models.Model):
       if DEBUG:
         stdout.write("|")
       target_text = translate_word(self.native_text, self.native_language.code, target_language.code)
-      target_stemmer = SnowballStemmer(target_language.name.lower())
-      target_stem = Stem.objects.get_or_create(native_language = target_language, native_text = target_stemmer.stem(target_text))[0]
+      if target_language._has_stemmer:
+        target_stemmer = SnowballStemmer(target_language.name.lower())
+        target_stem = Stem.objects.get_or_create(native_language = target_language, native_text = target_stemmer.stem(target_text))[0]
+      else:
+        target_stem = None
       result = Word.objects.get_or_create(native_text = target_text, native_stem = target_stem, native_language = target_language)[0]
       translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
       return translation
+
+  def stem_id(self):
+    if self.native_stem is not None:
+      return self.native_stem.pk
+    else:
+      return self.pk
 
 class TranslatedPhrase(models.Model):
   #TODO: constrain that these words are all the same language.
