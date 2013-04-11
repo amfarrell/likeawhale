@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'UserLanguageKnowledge'
-        db.create_table('accounts_userlanguageknowledge', (
+        db.create_table('learning_userlanguageknowledge', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('language', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['articles.Language'])),
@@ -18,13 +18,13 @@ class Migration(SchemaMigration):
             ('last_lookup', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('lookup_count', self.gf('django.db.models.fields.IntegerField')(default=0)),
         ))
-        db.send_create_signal('accounts', ['UserLanguageKnowledge'])
+        db.send_create_signal('learning', ['UserLanguageKnowledge'])
 
         # Adding unique constraint on 'UserLanguageKnowledge', fields ['user', 'language']
-        db.create_unique('accounts_userlanguageknowledge', ['user_id', 'language_id'])
+        db.create_unique('learning_userlanguageknowledge', ['user_id', 'language_id'])
 
         # Adding model 'UserWordKnowledge'
-        db.create_table('accounts_userwordknowledge', (
+        db.create_table('learning_userwordknowledge', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('word', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['articles.Word'])),
@@ -33,47 +33,27 @@ class Migration(SchemaMigration):
             ('last_lookup', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('lookup_count', self.gf('django.db.models.fields.IntegerField')(default=0)),
         ))
-        db.send_create_signal('accounts', ['UserWordKnowledge'])
+        db.send_create_signal('learning', ['UserWordKnowledge'])
 
         # Adding unique constraint on 'UserWordKnowledge', fields ['user', 'word']
-        db.create_unique('accounts_userwordknowledge', ['user_id', 'word_id'])
+        db.create_unique('learning_userwordknowledge', ['user_id', 'word_id'])
 
 
     def backwards(self, orm):
         # Removing unique constraint on 'UserWordKnowledge', fields ['user', 'word']
-        db.delete_unique('accounts_userwordknowledge', ['user_id', 'word_id'])
+        db.delete_unique('learning_userwordknowledge', ['user_id', 'word_id'])
 
         # Removing unique constraint on 'UserLanguageKnowledge', fields ['user', 'language']
-        db.delete_unique('accounts_userlanguageknowledge', ['user_id', 'language_id'])
+        db.delete_unique('learning_userlanguageknowledge', ['user_id', 'language_id'])
 
         # Deleting model 'UserLanguageKnowledge'
-        db.delete_table('accounts_userlanguageknowledge')
+        db.delete_table('learning_userlanguageknowledge')
 
         # Deleting model 'UserWordKnowledge'
-        db.delete_table('accounts_userwordknowledge')
+        db.delete_table('learning_userwordknowledge')
 
 
     models = {
-        'accounts.userlanguageknowledge': {
-            'Meta': {'unique_together': "(('user', 'language'),)", 'object_name': 'UserLanguageKnowledge'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'language': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['articles.Language']"}),
-            'last_lookup': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'lookup_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'mastery_level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'view_count': ('django.db.models.fields.IntegerField', [], {'default': '0'})
-        },
-        'accounts.userwordknowledge': {
-            'Meta': {'unique_together': "(('user', 'word'),)", 'object_name': 'UserWordKnowledge'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_lookup': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'lookup_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'mastery_level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'view_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'word': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['articles.Word']"})
-        },
         'articles.language': {
             'Meta': {'object_name': 'Language'},
             '_has_stemmer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -130,7 +110,27 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'learning.userlanguageknowledge': {
+            'Meta': {'unique_together': "(('user', 'language'),)", 'object_name': 'UserLanguageKnowledge'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'language': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['articles.Language']"}),
+            'last_lookup': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'lookup_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'mastery_level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'view_count': ('django.db.models.fields.IntegerField', [], {'default': '0'})
+        },
+        'learning.userwordknowledge': {
+            'Meta': {'unique_together': "(('user', 'word'),)", 'object_name': 'UserWordKnowledge'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_lookup': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'lookup_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'mastery_level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
+            'view_count': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'word': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['articles.Word']"})
         }
     }
 
-    complete_apps = ['accounts']
+    complete_apps = ['learning']
