@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
-import accounts
+import learning
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -15,8 +15,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^accounts/', include(accounts.urls)),
-    url(r'^(?P<code>[^\.]+)/(?P<slug>[^\.]+)', ('articles.views.view_article')),
-    url(r'^(?P<code>[^\.]+)/', ('articles.views.view_language')),
-    url(r'^', ('articles.views.index')),
+    url(r'^accounts/', include(learning.urls)),
+    url(r'^learning/', include(learning.urls)),
+#    url(r'^(?P<code>[^\.]+)/(?P<slug>[^\.]+)', ('articles.views.view_article')),
+#    url(r'^(?P<code>[^\.]+)/', ('articles.views.view_language')),
+#    url(r'^', ('articles.views.index')),
 )

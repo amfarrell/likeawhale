@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
-from django.contrib.auth.models import login_required
+from django.contrib.auth.decorators import login_required
 
 from articles.models import Language
 from articles.models import Article
