@@ -148,6 +148,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
   "allauth.socialaccount.context_processors.socialaccount",
 )
 
+SOUTH_MIGRATION_MODULES = {
+  'allauth.account'       : 'decodering.external_migrations.account',
+  'allauth.socialaccount' : 'decodering.external_migrations.socialaccount',
+}
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
