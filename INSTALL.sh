@@ -9,8 +9,6 @@ echo "DROP SEQUENCE accounts_userwordknowledge_id_seq CASCADE" | ./manage.py dbs
 echo "DROP SEQUENCE accounts_userlanguageknowledge_id_seq CASCADE" | ./manage.py dbshell
 echo "DROP TABLE accounts_userlanguageknowledge" | ./manage.py dbshell
 echo "DROP TABLE accounts_userwordknowledge" | ./manage.py dbshell
-./manage.py schemamigration 'allauth' --init
-./manage.py schemamigration 'allauth.account' --init
 ./manage.py migrate 'allauth.account'
 ./manage.py migrate 'learning'
 ./manage.py migrate 'articles'

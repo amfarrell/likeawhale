@@ -170,6 +170,7 @@ LOGIN_URL = '/accounts/login/'
 ### Specific to https://github.com/pennersr/django-allauth ###
 ### The user authentication plugin.                        ###
 ##############################################################
+LOGIN_REDIRECT_URL = '/en/'
 ACCOUNT_ADAPTER ="allauth.account.adapter.DefaultAccountAdapter"
 #Specifies the adapter class to use, allowing you to alter certain default behaviour.
 ACCOUNT_AUTHENTICATION_METHOD ="email"
