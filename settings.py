@@ -130,7 +130,22 @@ INSTALLED_APPS = (
     'learning',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     'south',
+)
+
+#from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+  "django.core.context_processors.request",
+  "allauth.account.context_processors.account",
+  "django.contrib.auth.context_processors.auth",
+  "django.core.context_processors.debug",
+  "django.core.context_processors.i18n",
+  "django.core.context_processors.media",
+  "django.core.context_processors.static",
+  "django.contrib.messages.context_processors.messages",
+  "allauth.socialaccount.context_processors.socialaccount",
 )
 
 # A sample logging configuration. The only tangible logging
