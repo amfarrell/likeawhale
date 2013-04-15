@@ -25,3 +25,6 @@ except ImportError:
 
 def has_translated(request):
   pass
+
+def has_seen(request):
+  pass
