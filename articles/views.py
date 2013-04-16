@@ -45,3 +45,4 @@ def view_language(request, code):
     'language': language,
     'articles': Translation.objects.filter(target_language = language)[:ARTICLES_PER_PAGE]
     })
+
