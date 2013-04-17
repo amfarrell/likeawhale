@@ -7,8 +7,11 @@ from articles.models import Article
 from articles.models import PhraseInTranslation
 from articles.models import Translation
 
+from settings import DEBUG
+
 ARTICLES_PER_PAGE = 5
 
+@login_required
 def index(request):
   return render_to_response('index.html', {
     'languages': Language.objects.all(),
@@ -18,7 +21,7 @@ def index(request):
 @login_required
 def view_article(request, code, slug):
   article = get_object_or_404(Article, slug = slug)
-  translation = article.translated_to(code)
+  translation = article.translated_to(code, force = False)
 
   def stem_of(word):
     if word.stem:
@@ -39,6 +42,7 @@ def view_article(request, code, slug):
       ) for pointer in pointers]
     })
 
+@login_required
 def view_language(request, code):
   language = get_object_or_404(Language, code = code)
   return render_to_response('language.html', {

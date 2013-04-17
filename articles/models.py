@@ -53,8 +53,9 @@ class Article(models.Model):
 
   def words(self):
     #TODO inefficient.
-    return [Word.objects.get_or_create(native_language = self.native_language, native_text = text)[0]
-              for text in chain.from_iterable([word_tokenize(t) for t in self.sentences()])]
+    for sentence in sent_tokenize(self.body):
+      for text in word_tokenize(sentence):
+        yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(text))[0]
 
   def translated_to(self, target_language = 'en', force = False):
     if isinstance(target_language, basestring) :
@@ -214,8 +215,8 @@ class TranslatedPhrase(models.Model):
     return '%s%s%s' % (self.first_target, ifthere(self.second_target), ifthere(self.third_target))
 
   def __unicode__(self):
-    return '[%s] %s -> [%s] %s' % (self.first_target.native_language.code, self.source_text(),
-                                           self.first_native.native_language.code, self.resulting_text())
+    return '[%s] %s -> [%s] %s' % (self.first_native.native_language.code, self.source_text(),
+                                           self.first_target.native_language.code, self.resulting_text())
   class Meta:
     unique_together = ('first_target', 'second_target', 'third_target', 
                        'first_native', 'second_native', 'third_native')

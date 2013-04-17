@@ -20,7 +20,7 @@ div.node ol {
 div.node div {
   display: block;
 }
-div.english {
+div.target {
   color:#fff;
 }
 {% endblock %}
@@ -44,15 +44,15 @@ var build = function () {
       var native = $('<div>')
         .addClass('native')
         .html(words[i].native+' ');
-      var english = $('<div>')
-        .addClass('english')
-        .html(words[i].english+' ');
+      var target = $('<div>')
+        .addClass('target')
+        .html(words[i].target+' ');
       ol = $('<ol>');
       node.append(ol);
       ol.append(native);
-      ol.append(english);
+      ol.append(target);
       native.wrap($('</li>'));
-      english.wrap($('</li>'));
+      target.wrap($('</li>'));
       article.append(node);
     }
   $('div.node').click(function(event){
@@ -61,7 +61,8 @@ var build = function () {
       node = node.parents('div.node')
     }
     var word_id = words[node.attr('id').split('_')[1]].word_id
-    var copies = $('div.word_'+word_id).find('div.english');
+    $.post('/learning/has_translated', {'word_id': word_id, 'target_lang':'{{translation.target_language.code}}'});
+    var copies = $('div.word_'+word_id).find('div.target');
     copies.animate({'color':'#333'}, 1000)
     if (already_translated[word_id] === 1){
       already_translated[word_id] = 1;
@@ -75,7 +76,7 @@ var build = function () {
 };
 words = {
   {% for node_id, word_id, stem_id, native_text, target_text in phrases %}
-  {{node_id}}: {'word_id': '{{word_id}}', 'native':'{{native_text}}', 'english':'{{target_text}}'},
+  {{node_id}}: {'word_id': '{{word_id}}', 'native':'{{native_text}}', 'target':'{{target_text}}'},
   {% endfor %}
 }
 build();
