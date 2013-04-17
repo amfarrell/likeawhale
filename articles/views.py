@@ -1,6 +1,7 @@
 # Create your views here.
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from articles.models import Language
 from articles.models import Article
@@ -13,11 +14,12 @@ ARTICLES_PER_PAGE = 5
 
 @login_required
 def index(request):
-  return render_to_response('index.html', {
+  return render(request, 'index.html', {
     'languages': Language.objects.all(),
     'articles': Article.objects.all()[:ARTICLES_PER_PAGE]
     })
 
+@ensure_csrf_cookie
 @login_required
 def view_article(request, code, slug):
   article = get_object_or_404(Article, slug = slug)
@@ -30,7 +32,7 @@ def view_article(request, code, slug):
       return word
   pointers = PhraseInTranslation.objects.filter(part_of = translation).select_related(
       'phrase','phrase__first_target','phrase__first_native','phrase__first_target__native_text', 'phrase__first_native__native_text', 'phrase__first_native__native_stem').all()
-  return render_to_response('article.html', {
+  return render(request, 'article.html', {
     'article': article,
     'translation': translation,
     'phrases' : [(
@@ -45,7 +47,7 @@ def view_article(request, code, slug):
 @login_required
 def view_language(request, code):
   language = get_object_or_404(Language, code = code)
-  return render_to_response('language.html', {
+  return render(request, 'language.html', {
     'language': language,
     'articles': Translation.objects.filter(target_language = language)[:ARTICLES_PER_PAGE]
     })

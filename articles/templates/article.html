@@ -25,6 +25,7 @@ div.target {
 }
 {% endblock %}
 {% block content %} 
+<div id='csrf'>{% csrf_token %}</div>
 <div id='article'>
 </div>
 {% endblock %}
@@ -61,7 +62,7 @@ var build = function () {
       node = node.parents('div.node')
     }
     var word_id = words[node.attr('id').split('_')[1]].word_id
-    $.post('/learning/has_translated', {'word_id': word_id, 'target_lang':'{{translation.target_language.code}}'});
+    $.post('/learning/has_translated/', {'word_id': word_id, 'target_lang':'{{translation.target_language.code}}', 'csrfmiddlewaretoken':$('#csrf input').val()});
     var copies = $('div.word_'+word_id).find('div.target');
     copies.animate({'color':'#333'}, 1000)
     if (already_translated[word_id] === 1){
