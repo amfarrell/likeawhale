@@ -1,3 +1,4 @@
+sudo apt-get install libxml2-dev libxslt-dev python-dev
 echo "assuming you are in your virtualenv..."
 pip install -r requirements.txt
 cd learning/django-allauth
