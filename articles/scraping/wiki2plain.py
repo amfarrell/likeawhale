@@ -3,6 +3,7 @@
 import re
 
 ###
+# XXX
 # TODO: proper copyright attribution. source is here: http://pastebin.com/idw8vQQK
 ###
 
@@ -17,6 +18,9 @@ class Wiki2Plain:
     
     def __str__(self):
         return self.text
+
+    def __unicode__(self):
+        return unicode(self.text, 'utf-8')
     
     def unwiki(self, wiki):
         """
