@@ -108,6 +108,13 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+        'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -120,8 +127,32 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'articles',
+    'learning',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'south',
 )
+
+#from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+  "django.core.context_processors.request",
+  "allauth.account.context_processors.account",
+  "django.contrib.auth.context_processors.auth",
+  "django.core.context_processors.debug",
+  "django.core.context_processors.csrf",
+  "django.core.context_processors.i18n",
+  "django.core.context_processors.media",
+  "django.core.context_processors.static",
+  "django.contrib.messages.context_processors.messages",
+  "allauth.socialaccount.context_processors.socialaccount",
+)
+
+SOUTH_MIGRATION_MODULES = {
+  'allauth.account'       : 'decodering.external_migrations.account',
+  'allauth.socialaccount' : 'decodering.external_migrations.socialaccount',
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -154,3 +185,46 @@ LOGGING = {
 
 #GOOGLE_TRANSLATE_API_KEY = 'AIzaSyDrgCi2QfzE_JeBeuWYFBjnxp-9JARhUho'
 GOOGLE_TRANSLATE_API_KEY = 'AIzaSyCTwFR8WQJ-jMV2BivXa6tfJobS-YZFKrQ'
+LOGIN_URL = '/accounts/login/'
+
+##############################################################
+### Specific to https://github.com/pennersr/django-allauth ###
+### The user authentication plugin.                        ###
+##############################################################
+LOGIN_REDIRECT_URL = '/en/'
+ACCOUNT_ADAPTER ="allauth.account.adapter.DefaultAccountAdapter"
+#Specifies the adapter class to use, allowing you to alter certain default behaviour.
+ACCOUNT_AUTHENTICATION_METHOD ="email"
+#Specifies the login method to use - whether the user logs in by entering his username, e-mail address, or either one of both.
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = LOGIN_URL
+#The URL to redirect to after a successful e-mail confirmation, in case no user is logged in.
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = None
+#The URL to redirect to after a successful e-mail confirmation, in case of an authenticated user. Set to None to use settings.LOGIN_REDIRECT_URL.
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 9
+#Determines the expiration date of email confirmation mails (# of days).
+ACCOUNT_EMAIL_REQUIRED = True
+#The user is required to hand over an e-mail address when signing up.
+ACCOUNT_EMAIL_VERIFICATION ="mandatory"
+#Determines the e-mail verification method during signup. When set to "mandatory" the user is blocked from logging in until the email address is verified. Choose "optional" or "none" to allow logins with an unverified e-mail address. In case of "optional", the e-mail verification mail is still sent, whereas in case of "none" no e-mail verification mails are sent.
+ACCOUNT_EMAIL_SUBJECT_PREFIX ="[afarrell-uap]"
+#Subject-line prefix to use for email messages sent. By default, the name of the current Site (django.contrib.sites) is used.
+ACCOUNT_SIGNUP_FORM_CLASS = None
+#A string pointing to a custom form class (e.g. 'myapp.forms.SignupForm') that is used during signup to ask the user for additional input (e.g. newsletter signup, birth date). This class should implement a 'save' method, accepting the newly signed up user as its only parameter.
+#TODO: make this a form which asks the user what langauges they know.
+ACCOUNT_SIGNUP_PASSWORD_VERIFICATION =True
+#When signing up, let the user type in his password twice to avoid typ-o's.
+ACCOUNT_UNIQUE_EMAIL = True
+#Enforce uniqueness of e-mail addresses.
+ACCOUNT_USER_DISPLAY = lambda user: user.username
+#A callable (or string of the form 'some.module.callable_name') that takes a user as its only argument and returns the display name of the user. The default implementation returns user.username.
+ACCOUNT_USERNAME_MIN_LENGTH = 1
+#An integer specifying the minimum allowed length of a username.
+ACCOUNT_USERNAME_BLACKLIST = []
+#A list of usernames that can't be used by user.
+ACCOUNT_USERNAME_REQUIRED = False
+#The user is required to enter a username when signing up. Note that the user will be asked to do so even if ACCOUNT_AUTHENTICATION_METHOD is set to email. Set to False when you do not wish to prompt the user to enter a username.
+ACCOUNT_PASSWORD_INPUT_RENDER_VALUE = False
+#render_value parameter as passed to PasswordInput fields.
+ACCOUNT_PASSWORD_MIN_LENGTH = 6
+#An integer specifying the minimum password length.
+

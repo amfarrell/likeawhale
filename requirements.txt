@@ -4,11 +4,19 @@ South==0.7.6
 argparse==1.2.1
 distribute==0.6.24
 dj-database-url==0.2.1
+django-allauth==0.10.0, 
+#but it is not installed on pip. instead, 
+#cd learning/django-allauth
+#python setup.py install
 google-api-python-client==1.0
 httplib2==0.7.7
 ipython==0.13.1
 nltk==2.0.4
+oauth2==1.5.211
+requests-oauthlib>=0.3.0
 psycopg2==2.4.6
 python-gflags==2.0
+python-openid==2.2.5
+requests==1.2.0
 wsgiref==0.1.2
 yolk==0.4.3
