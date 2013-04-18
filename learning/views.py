@@ -8,25 +8,15 @@ import allauth
 from articles.models import Word, Language, TranslatedPhrase
 from learning.models import UserWordKnowledge, UserLanguageKnowledge
 
-#def log_in(request):
-#  username = request.POST['username']
-#  password = request.POST['password']
-#  if user is not None:
-#    if user.is_active:
-#      login(request, user)
-#    else:
-#      raise NotImplementedError
-#  else:
-#    raise NotImplementedError
-#    #Redirect to create account page.
-#
-#def has_seen(request):
-#  for word_id in request.POST['words']:
-#    UserWordKnowledge.objects.get
-#  pass
-
 @login_required
 def has_translated(request):
+  """
+  params:
+  'target_lang' : The ISO code for the language that the qord was translated into.
+  'word_id' : The database primary key of the word.
+
+  Called whenever a user requests the translation of a word.
+  """
   language = Language.objects.get(code = request.POST['target_lang'])
   phrase = TranslatedPhrase.objects.get(first_native__pk = request.POST['word_id'], first_target__native_language = language)
   print phrase
