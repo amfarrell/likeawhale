@@ -43,7 +43,7 @@ class Language(models.Model):
 
 class Article(models.Model):
   title = models.CharField(max_length = 124, unique = True)
-  slug = models.CharField(max_length = 124, unique = True)
+  slug = models.CharField(max_length = 124, unique = True, blank = True, null = True)
   body = models.TextField()
   source_url = models.CharField(max_length = 2048, unique = True)
   native_language = models.ForeignKey('articles.Language')
