@@ -1,5 +1,5 @@
 # Create your views here.
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -19,10 +19,24 @@ def index(request):
     'articles': Article.objects.all()[:ARTICLES_PER_PAGE]
     })
 
+@login_required
+def view_language(request, code):
+  language = get_object_or_404(Language, code = code)
+  return render(request, 'language.html', {
+    'language': language,
+    'articles': Translation.objects.filter(target_language = language)[:ARTICLES_PER_PAGE]
+    })
+
+
 @ensure_csrf_cookie
 @login_required
-def view_article(request, code, slug):
-  article = get_object_or_404(Article, slug = slug)
+def view_article(request, code, slug = None):
+  if slug:
+    article = get_object_or_404(Article, slug = slug)
+  else:
+    if 'url' not in request.GET:
+      return redirect('view_language', code = code)
+    article = get_object_or_404(Article, source_url = request.GET['url'])
   translation = article.translated_to(code, force = False)
 
   def stem_of(word):
@@ -38,17 +52,8 @@ def view_article(request, code, slug):
     'phrases' : [(
         pointer._order,                                   #node_id
         pointer.phrase.first_native.pk,                   #word_id
-        pointer.phrase.first_native.stem_id(),          #stem_id
+        pointer.phrase.first_native.stem_id(),            #stem_id
         pointer.phrase.first_native.native_text,          #native_text
         pointer.phrase.first_target.native_text,          #target_text
       ) for pointer in pointers]
     })
-
-@login_required
-def view_language(request, code):
-  language = get_object_or_404(Language, code = code)
-  return render(request, 'language.html', {
-    'language': language,
-    'articles': Translation.objects.filter(target_language = language)[:ARTICLES_PER_PAGE]
-    })
-
