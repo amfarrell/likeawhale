@@ -24,5 +24,6 @@ urlpatterns = patterns('',
     url(r'^$', ('articles.views.index')),
     url(r'^(?P<code>[^\.]+)/list', ('articles.views.view_language')),
     url(r'^(?P<code>[^\.]+)/view', ('articles.views.view_article')),
+    url(r'^(?P<code>[^\.]+)/wiki', ('articles.views.view_wikipedia_article')),
     url(r'^(?P<code>[^\.]+)/$', redirect_to, {'url': '/%(code)s/list'}),
 )

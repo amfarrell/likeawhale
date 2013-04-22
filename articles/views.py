@@ -9,6 +9,8 @@ from articles.models import Article
 from articles.models import PhraseInTranslation
 from articles.models import Translation
 
+from scraping import scrape_wikipedia
+
 from settings import DEBUG
 
 ARTICLES_PER_PAGE = 5
@@ -26,7 +28,7 @@ def view_language(request, code):
   language = get_object_or_404(Language, code = code)
   return render(request, 'language.html', {
     'language': language,
-    'articles': Translation.objects.filter(target_language = language)[:ARTICLES_PER_PAGE]
+    'articles': Translation.objects.filter(original_article__native_language = language)[:ARTICLES_PER_PAGE]
     })
 
 
@@ -51,3 +53,8 @@ def view_article(request, code):
         pointer.phrase.first_target.native_text,          #target_text
       ) for pointer in pointers]
     })
+
+@login_required
+def view_wikipedia_article(request, code):
+  article = scrape_wikipedia(code, topic = request.GET['topic'])
+  return redirect(article.get_absolute_url())

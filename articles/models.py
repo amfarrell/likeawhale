@@ -89,9 +89,11 @@ class Article(models.Model):
     return translation
 
   def get_absolute_url(self):
-    return reverse('articles.views.view_article', kwargs = {'code' : self.native_language.code}) + '?url=' + str(self.source_url)
+    return reverse('articles.views.view_article', kwargs = {'code' : self.native_language.code}) + '?' + urlencode({'url' : self.source_url})
 
-    return ('articles.views.view_article', None, {'code' : self.native_language.code})
+  def __unicode__(self):
+    return "[%s] %s" % (self.native_language.code, self.title)
+
 
 ELEMENT_TYPES = (('CAPTION', 'caption'), ('TITLE', 'title'), ('SUBTITLE', 'subtitle'), ('BLOCKQUOTE', 'blockquote'), ('PARAGRAPH', 'paragraph'))
 class LayoutElement(models.Model):
@@ -106,7 +108,7 @@ class LayoutElement(models.Model):
   )
   #TODO: add images
   class Meta:
-    unique_together = ('article', 'text', 'position', 'element_type')
+    unique_together = ('article', 'position', 'element_type')
     ordering = ['position']
     order_with_respect_to = 'article'
 
@@ -157,7 +159,7 @@ class Word(models.Model):
   native_text = models.CharField(max_length = 124)
   native_stem = models.ForeignKey(Stem, blank = True, null = True)
   native_language = models.ForeignKey('articles.Language')
-  difficulty = models.IntegerField()
+  difficulty = models.IntegerField(blank = True, null = True)
 
   #maintain the constraint that if the language has a stemmer, the word needs a stem.
 
@@ -189,7 +191,10 @@ class Word(models.Model):
         target_stem = Stem.objects.get_or_create(native_language = target_language, native_text = target_stemmer.stem(target_text))[0]
       else:
         target_stem = None
-      result = Word.objects.get_or_create(native_text = target_text, native_stem = target_stem, native_language = target_language)[0]
+      result = Word.objects.get_or_create(native_text = target_text, native_language = target_language)[0]
+      if target_stem and result.native_stem is None:
+        result.native_stem = target_stem
+        result.save()
       translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
       return translation
 
