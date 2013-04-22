@@ -3,6 +3,7 @@ from translate import word_tokenize
 from translate import sent_tokenize #wordpunct_tokenize
 from translate import SnowballStemmer
 from translate import translate_word
+from urllib import urlencode
 from sys import stdout
 
 
@@ -10,6 +11,7 @@ import apiclient.discovery
 
 from django.db import models
 from django.db.models import permalink
+from django.core.urlresolvers import reverse
 
 from settings import GOOGLE_TRANSLATE_API_KEY
 from settings import DEBUG
@@ -43,7 +45,6 @@ class Language(models.Model):
 
 class Article(models.Model):
   title = models.CharField(max_length = 124, unique = True)
-  slug = models.CharField(max_length = 124, unique = True, blank = True, null = True)
   body = models.TextField()
   source_url = models.CharField(max_length = 2048, unique = True)
   native_language = models.ForeignKey('articles.Language')
@@ -87,9 +88,10 @@ class Article(models.Model):
       ))
     return translation
 
-  @permalink
   def get_absolute_url(self):
-    return ('articles.views.view_article', None, {'slug': self.slug, 'code' : self.native_language.code})
+    return reverse('articles.views.view_article', kwargs = {'code' : self.native_language.code}) + '?url=' + str(self.source_url)
+
+    return ('articles.views.view_article', None, {'code' : self.native_language.code})
 
 ELEMENT_TYPES = (('CAPTION', 'caption'), ('TITLE', 'title'), ('SUBTITLE', 'subtitle'), ('BLOCKQUOTE', 'blockquote'), ('PARAGRAPH', 'paragraph'))
 class LayoutElement(models.Model):
@@ -115,9 +117,8 @@ class Translation(models.Model):
   original_article = models.ForeignKey(Article)
   target_language = models.ForeignKey(Language)
 
-  @permalink
   def get_absolute_url(self):
-    return ('articles.views.view_article', None, {'slug': self.original_article.slug, 'code' : self.original_article.native_language.code})
+    return self.original_article.get_absolute_url() + '&target_language=' + self.target_language.code
 
   class Meta:
     unique_together = ('original_article', 'target_language',)

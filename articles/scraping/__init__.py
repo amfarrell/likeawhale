@@ -9,7 +9,6 @@ def scrape_wikipedia(language, topic):
     native_language = language,
     source_url = Wikipedia.url_article % (language.code, topic), #DRY
     body = Wiki2Plain(Wikipedia(language.code).article(topic)),
-    slug = '%s_wikipedia_article_on_%s' % (language.name, topic),
     title = topic
   )
   return article.source_url
