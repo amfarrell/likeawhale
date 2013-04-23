@@ -39,7 +39,6 @@ def view_article(request, code):
     return redirect(reverse(view_language, kwargs = {'code' : code}))
   article = get_object_or_404(Article, native_language__code = code, source_url = request.GET['url'])
   translation = article.translated_to(request.GET.get('target_lang', DEFAULT_LANGUAGE), force = False)
-
   pointers = PhraseInTranslation.objects.filter(part_of = translation).select_related(
       'phrase','phrase__first_target','phrase__first_native','phrase__first_target__native_text', 'phrase__first_native__native_text', 'phrase__first_native__native_stem').all()
   return render(request, 'article.html', {
@@ -56,5 +55,8 @@ def view_article(request, code):
 
 @login_required
 def view_wikipedia_article(request, code):
-  article = scrape_wikipedia(code, topic = request.GET['topic'])
-  return redirect(article.get_absolute_url())
+  article = scrape_wikipedia(code, topic = unicode(request.GET['topic']))
+  article.save()
+  translation = article.translated_to('en') #TODO: generalize this to the users' language.
+  translation.save()
+  return redirect(translation.get_absolute_url())

@@ -28,6 +28,7 @@ def ifthere(word):
 class Language(models.Model):
   code = models.CharField(max_length = 8, unique = True)
   name = models.CharField(max_length = 32, unique = True)
+  alphabetic = models.BooleanField(default = True)
   _has_stemmer = models.BooleanField(default = False)
 
   def __unicode__(self):
@@ -44,7 +45,7 @@ class Language(models.Model):
       return None
 
 class Article(models.Model):
-  title = models.CharField(max_length = 124, unique = True)
+  title = models.CharField(max_length = 256, unique = True)
   body = models.TextField()
   source_url = models.CharField(max_length = 2048, unique = True)
   native_language = models.ForeignKey('articles.Language')
@@ -55,8 +56,16 @@ class Article(models.Model):
   def words(self):
     #TODO inefficient.
     for sentence in sent_tokenize(self.body):
-      for text in word_tokenize(sentence):
-        yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(text))[0]
+      #TODO Google "stanford NLP chinese" and look for the word segmenter.
+      #For now, we'll just treat each character as a separate word.
+      #import pdb;pdb.set_trace()
+      if self.native_language.alphabetic:
+        for text in word_tokenize(sentence):
+          yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(text))[0]
+      else:
+        for character in sentence:
+          if character not in ('\n',):
+            yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(character))[0]
 
   def translated_to(self, target_language = 'en', force = False):
     if isinstance(target_language, basestring) :
@@ -76,6 +85,7 @@ class Article(models.Model):
     translation = Translation.objects.get_or_create(original_article = self, target_language = target_language)[0]
     phrases = [word.translated_to(target_language) for word in words]
     phrases_in_translation = [None,]
+    stdout.write("the article has %s phrases." % len(phrases))
     for position, phrase in enumerate(phrases):
       phrases_in_translation.append(PhraseInTranslation.objects.create(
         displays_as = elements[0], #TODO: actually pay attention to elements.
@@ -89,7 +99,8 @@ class Article(models.Model):
     return translation
 
   def get_absolute_url(self):
-    return reverse('articles.views.view_article', kwargs = {'code' : self.native_language.code}) + '?' + urlencode({'url' : self.source_url})
+    url = reverse('articles.views.view_article', kwargs = {'code' : self.native_language.code}) + '?' + urlencode({'url' : self.source_url.encode("utf-8")})
+    return url
 
   def __unicode__(self):
     return "[%s] %s" % (self.native_language.code, self.title)
@@ -141,6 +152,7 @@ class WordManager(models.Manager):
   def _process_kwargs(self, kwargs):
     if isinstance(kwargs['native_language'], basestring) :
       kwargs['native_language'] = Language.objects.get(code = kwargs['native_language'])
+    kwargs['native_text'] = kwargs['native_text'].encode('utf-8')
     if kwargs['native_language']._has_stemmer:
       if kwargs.get('native_stem', None) is None:
         kwargs['native_stem'] = Stem.objects.get_or_create(
@@ -169,7 +181,7 @@ class Word(models.Model):
     return "[%s] %s" % (self.native_language.code, self.native_text)
 
   def __unicode__(self):
-    return "%s" % self.native_text
+    return unicode(self.native_text, 'utf-8')
 
   class Meta:
     unique_together = ('native_text', 'native_language',)
