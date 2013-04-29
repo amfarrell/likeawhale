@@ -13,6 +13,10 @@ def translate_word(native_text, native_language, target_language = 'en'):
     target_language = target_language.code
   if not isinstance(native_language, basestring):
     native_language = native_language.code
+  try:
+    native_text = unicode(native_text)
+  except UnicodeDecodeError:
+    native_text = native_text.decode('utf-8')
   target_text = service.translations().list(source = native_language,
                               target = target_language,
                               q = [native_text,]).execute()

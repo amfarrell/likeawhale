@@ -71,10 +71,13 @@ class Article(models.Model):
     if isinstance(target_language, basestring) :
       target_language = Language.objects.get(code = target_language)
     trans = Translation.objects.filter(original_article = self, target_language = target_language)
-    if force:
-      trans.delete()
     if trans.exists():
-      return trans.get()
+      translation = trans.get()
+      if force or translation.phraseintranslation_set.count() == 0:
+        trans.delete()
+        return self._translate(target_language)
+      else:
+        return translation
     else:
       return self._translate(target_language)
 
@@ -190,7 +193,7 @@ class Word(models.Model):
     if isinstance(target_language, basestring) :
       target_language = Language.objects.get(code = target_language)
     possible = TranslatedPhrase.objects.filter(first_native = self, second_native = None, third_native = None, first_target__native_language = target_language)
-    if possible.exists():
+    if possible.count() > 0:
       if DEBUG:
         stdout.write(".")
       return possible.get()

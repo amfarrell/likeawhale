@@ -55,7 +55,11 @@ def view_article(request, code):
 
 @login_required
 def view_wikipedia_article(request, code):
-  article = scrape_wikipedia(code, topic = unicode(request.GET['topic']))
+  try:
+    topic_u = unicode(request.GET['topic'])
+  except UnicodeEncodeError:
+    topic_u = request.GET['topic'].decode('utf-8')
+  article = scrape_wikipedia(code, topic_u)
   article.save()
   translation = article.translated_to('en') #TODO: generalize this to the users' language.
   translation.save()
