@@ -14,6 +14,8 @@
 ###-------------------------------------###
 
 
+from articles.models import Word, Language, Article
+from learning.models import UserWordKnowledge
 """
 class methods for Model
 We can measure the fluency level of a user
@@ -27,7 +29,7 @@ If after 3 reads, if no clicks, then set word to known.
 Anytime a word click happens, it resets to zero.
 """
 
-def initializeModel(self, user, lvl):
+def initializeModel(user, lvl):
 """
 Initialize the model of the user. 
 All word levels labled 1-6, 1 being the first 1 thousand, etc.
@@ -45,7 +47,7 @@ Keyword arguments:
 
 
 # Sets word to unknown.
-def callOnClick(self, user, word):
+def callOnClick(user, word):
   """
   Function needs to be called on a user word definition
   lookup click. This updates the model.
@@ -85,7 +87,7 @@ def callOnArticleUpload(self, user, title):
 
 
 
-def scoreArticle(self, user, title):
+def scoreArticle(user, title):
   """
   Returns ratio of words known to total words.
   Includes duplicate words.
@@ -102,7 +104,7 @@ def scoreArticle(self, user, title):
   return score/len(article.words())
 
 
-def rankArticles(self, user, titles):
+def rankArticles(user, titles):
   """
   Takes in a list of article names and returns the ranked order.
 
@@ -112,7 +114,7 @@ def rankArticles(self, user, titles):
   """
   ranking = []
   for title in titles:
-    score = self.scoreArticle(user, title)
+    score = scoreArticle(user, title)
     ranking.append((score, title))
   ranking.reverse()
   ranking = [title for score, title in ranking]

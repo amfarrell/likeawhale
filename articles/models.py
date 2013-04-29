@@ -166,7 +166,7 @@ class Word(models.Model):
     return "[%s] %s" % (self.native_language.code, self.native_text)
 
   def __unicode__(self):
-    return "%s" % self.native_text
+    return u"%s" % unicode(self.native_text)
 
   class Meta:
     unique_together = ('native_text', 'native_language',)
