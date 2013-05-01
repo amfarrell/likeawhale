@@ -21,10 +21,11 @@ class UserWordKnowledge(models.Model):
   word = models.ForeignKey(Word)
   user_id = models.IntegerField()
   mastery_level = models.IntegerField() # 0 or 1
-  last_view = models.DateField(auto_now_add = True)
   view_count = models.IntegerField()
-  last_lookup = models.DateField(auto_now_add = True)
-  lookup_count = models.IntegerField()
+
+  # last_view = models.DateField(auto_now_add = True)
+  # last_lookup = models.DateField(auto_now_add = True)
+  # lookup_count = models.IntegerField()
 
   class Meta:
     unique_together = ('user', 'word')
