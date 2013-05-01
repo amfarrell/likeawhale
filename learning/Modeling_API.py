@@ -29,7 +29,7 @@ If after 3 reads, if no clicks, then set word to known.
 Anytime a word click happens, it resets to zero.
 """
 
-def initializeModel(user, lvl):
+def populateModel(user, level):
 """
 Initialize the model of the user. 
 All word levels labled 1-6, 1 being the first 1 thousand, etc.
@@ -37,13 +37,13 @@ Mastery_level is just a boolean value.
 
 Keyword arguments:
   user - the username of type string
-  lvl - the user level from 1 to 6.
+  level - the user level from 1 to 6.
 """
-  words = Word.objects.filter(level <= lvl) # do conditionals work?
-  for w in words:
-    difficulty = w.difficulty
-    v = UserWordKnowledge(word=w, word_id=w.id, user_id=user, mastery_level=1)
-    v.save()
+  words = Word.objects.get(difficulty__lte = level)
+  for word in words:
+    vector = UserWordKnowledge(user_id = user_id,
+      word = word, mastery_level = 1)
+    vector.save()
 
 
 # Sets word to unknown.
