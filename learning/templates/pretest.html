@@ -13,8 +13,13 @@ click on level, populate user vectors, route to article list
   </style>
 
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+
+<script type="text/javascript" src="/path/to/jquery.min.js"></script>
+<link type="text/css" rel="stylesheet" href="/path/to/jquery.qtip.css" />
+
 </head>
 <body>
+<script type="text/javascript" src="/path/to/jquery.qtip.min.js"></script>
 
 <h2>Pick a Level</h2>
 <ul>
@@ -38,28 +43,35 @@ click on level, populate user vectors, route to article list
 {% block extra_js %} 
 // Functionality for level selection and vector model population
 
+
 $("#1").click(function() {
-  $.post('/learning/populateModel/', 'level': 1);
+  $.post('/learning/populateModel/', {'level': 1});
+  alert("Level 1 Selected!");
 });
 
 $("#2").click(function() {
-  $.post('/learning/populateModel/', 'level': 2);
+  $.post('/learning/populateModel/', {'level': 2});
+  alert("Level 2 Selected!");
 });
 
 $("#3").click(function() {
-  $.post('/learning/populateModel/', 'level': 3);
+  $.post('/learning/populateModel/', {'level': 3});
+  alert("Level 3 Selected!");
 });
 
 $("#4").click(function() {
-  $.post('/learning/populateModel/', 'level': 4);
+  $.post('/learning/populateModel/', {'level': 4});
+  alert("Level 4 Selected!");
 });
 
 $("#5").click(function() {
-  $.post('/learning/populateModel/', 'level': 5);
+  $.post('/learning/populateModel/', {'level': 5});
+  alert("Level 5 Selected!");
 });
 
 $("#6").click(function() {
-  $.post('/learning/populateModel/', 'level': 6);
+  $.post('/learning/populateModel/', {'level': 6});
+  alert("Level 6 Selected!");
 });
 
 
