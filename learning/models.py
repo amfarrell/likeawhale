@@ -17,10 +17,10 @@ class UserLanguageKnowledge(models.Model):
     unique_together = ('user', 'language')
 
 class UserWordKnowledge(models.Model):
-  user_id = models.ForeignKey(User) # need to add User model
-  word_id = models.ForeignKey(Word)
-  word = models.CharField(max_length=255)
-  mastery_level = models.IntegerField() # 0-100. 50 is default
+  user = models.ForeignKey(User)
+  word = models.ForeignKey(Word)
+  user_id = models.IntegerField()
+  mastery_level = models.IntegerField() # 0 or 1
   last_view = models.DateField(auto_now_add = True)
   view_count = models.IntegerField()
   last_lookup = models.DateField(auto_now_add = True)
