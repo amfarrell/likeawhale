@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from django.core import serializers
+from articles.models import Language
 
 f = open('Char_level_list.txt','r')
 new = open('fixture.json','w')
