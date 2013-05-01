@@ -49,17 +49,17 @@ def has_seen(request):
   #return HttpResponse(simplejson.dumps('okay'), mimetype='application/json')
 
 
-
+@login_required
 def populateModel(user_id, level):
-"""
-Initialize the model of the user. 
-All word levels labled 1-6, 1 being the first 1 thousand, etc.
-Mastery_level is just a boolean value.
+  """
+  Initialize the model of the user. 
+  All word levels labled 1-6, 1 being the first 1 thousand, etc.
+  Mastery_level is just a boolean value.
 
-Keyword arguments:
-  user_id - the user id of type int
-  level - the user level from 1 to 6.
-"""
+  Keyword arguments:
+    user_id - the user id of type int
+    level - the user level from 1 to 6.
+  """
   words = Word.objects.get(difficulty__lte = level)
   for word in words:
     vector = UserWordKnowledge(user_id = user_id,
