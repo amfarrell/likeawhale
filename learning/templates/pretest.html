@@ -22,29 +22,28 @@ click on level, populate user vectors, route to article list
 // Functionality for level selection and vector model population
 
 $("#1").click(function() {
-  alert("Handler for .click() called.");
+  $.post('/learning/populateModel/', 'level': 1);
+
 });
-$.post('/learning/has_translated/', 
-{'word_id': word_id, 'target_lang':'{{translation.target_language.code}}', 'csrfmiddlewaretoken':$('#csrf input').val()});
 
 $("#2").click(function() {
-  alert("Handler for .click() called.");
+  $.post('/learning/populateModel/', 'level': 2);
 });
 
 $("#3").click(function() {
-  alert("Handler for .click() called.");
+  $.post('/learning/populateModel/', 'level': 3);
 });
 
 $("#4").click(function() {
-  alert("Handler for .click() called.");
+  $.post('/learning/populateModel/', 'level': 4);
 });
 
 $("#5").click(function() {
-  alert("Handler for .click() called.");
+  $.post('/learning/populateModel/', 'level': 5);
 });
 
 $("#6").click(function() {
-  alert("Handler for .click() called.");
+  $.post('/learning/populateModel/', 'level': 6);
 });
 
 
