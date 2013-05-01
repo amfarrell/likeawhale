@@ -43,7 +43,7 @@ def populateModel(user, level):
   """
   Takes in a user and level and populates words based on level
   """
-  words = Word.objects.get(difficulty <= level)
+  words = Word.objects.get(difficulty__lte = level)
   for word in words:
-    vector = UserWordKnowledge(user = user, word = word.native_text, mastery_level = 1)
+    vector = UserWordKnowledge(user = user, word = word, mastery_level = 1)
     vector.save()
