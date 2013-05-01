@@ -36,3 +36,15 @@ def has_translated(request):
 def has_seen(request):
   return HttpResponse(simplejson.dumps('okay'), mimetype='application/json')
   pass
+
+
+
+def populateModel(user, level):
+  """
+  Takes in a user and level and populates words based on level
+  """
+  words = Word.objects.get(difficulty <= level)
+  for word in words:
+    vector = UserWordKnowledge(user = user,
+      word = word, mastery_level = 1)
+    vector.save()

@@ -15,6 +15,6 @@ urlpatterns = patterns('',
 #    url(r'^log_in/', views.log_in),
     url(r'^has_seen/', views.has_seen),
     url(r'^has_translated/', views.has_translated),
-    url(r'^pretest/', views.pretest)
+    url(r'^pretest/', views.pretest),
 #    url(r'^', views.log_in),
 ) 
