@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 import allauth
 from articles.models import Word, Language, TranslatedPhrase
 from learning.models import UserWordKnowledge, UserLanguageKnowledge
+from Modeling_API import *
+
 
 @login_required
 def pretest(request):
@@ -25,17 +27,26 @@ def has_translated(request):
 
   Called whenever a user requests the translation of a word.
   """
-  language = Language.objects.get(code = request.POST['target_lang'])
-  phrase = TranslatedPhrase.objects.get(first_native__pk = request.POST['word_id'], first_target__native_language = language)
-  print phrase
-  print UserWordKnowledge.objects.get_or_create(user = request.user, word = phrase.first_native)
-  print UserLanguageKnowledge.objects.get_or_create(user = request.user, language = language)
-  return HttpResponse(simplejson.dumps('okay'), mimetype='application/json')
+  callOnClick(request.user.id, word_id)
+
+  #language = Language.objects.get(code = request.POST['target_lang'])
+  #phrase = TranslatedPhrase.objects.get(first_native__pk = request.POST['word_id'], first_target__native_language = language)
+  #print phrase
+  #print UserWordKnowledge.objects.get_or_create(user = request.user, word = phrase.first_native)
+  #print UserLanguageKnowledge.objects.get_or_create(user = request.user, language = language)
+  #return HttpResponse(simplejson.dumps('okay'), mimetype='application/json')
 
 @login_required
 def has_seen(request):
-  return HttpResponse(simplejson.dumps('okay'), mimetype='application/json')
-  pass
+  """
+  Params:
+    'article_id': pk of the article
+
+  Assumption: Called when an article is uploaded
+  """
+  callOnArticleUpload(request.user.id, article_id)
+
+  #return HttpResponse(simplejson.dumps('okay'), mimetype='application/json')
 
 
 
