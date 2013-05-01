@@ -99,7 +99,7 @@ def scoreArticle(user_id, article_id):
   score = 0.0
   words = list(set(article.words()))
   for word in words:
-    if UserWordKnowledge.objects.get(user_id, word=word) not None:
+    if UserWordKnowledge.objects.get(user_id, word=word) != None:
       score += 1
   return score/len(article.words())
 
