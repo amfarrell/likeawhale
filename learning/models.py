@@ -17,12 +17,14 @@ class UserLanguageKnowledge(models.Model):
     unique_together = ('user', 'language')
 
 class UserWordKnowledge(models.Model):
-  user = models.ForeignKey(User)
-  word = models.ForeignKey(Word)
-  mastery_level = models.IntegerField(default = 0)
-  view_count = models.IntegerField(default = 0)
+  user_id = models.ForeignKey(User) # need to add User model
+  word_id = models.ForeignKey(Word)
+  word = models.CharField(max_length=255)
+  mastery_level = models.IntegerField() # 0-100. 50 is default
+  last_view = models.DateField(auto_now_add = True)
+  view_count = models.IntegerField()
   last_lookup = models.DateField(auto_now_add = True)
-  lookup_count = models.IntegerField(default = 0)
+  lookup_count = models.IntegerField()
 
   class Meta:
     unique_together = ('user', 'word')

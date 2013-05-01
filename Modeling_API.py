@@ -1,17 +1,3 @@
-# Additional models to be added to model.py
- class UserWordKnowledge(models.Model):
-  user_id = models.ForeignKey(User) # need to add User model
-  word_id = models.ForeignKey(Word)
-  word = models.CharField(max_length=255)
-  mastery_level = models.IntegerField() # 0-100. 50 is default
-  last_view = models.DateField(auto_now_add = True)
-  view_count = models.IntegerField()
-  last_lookup = models.DateField(auto_now_add = True)
-  lookup_count = models.IntegerField()
-
-###-------------------------------------###
-
-
 from articles.models import Word, Language, Article
 from learning.models import UserWordKnowledge
 """
@@ -28,15 +14,15 @@ Anytime a word click happens, it resets to zero.
 """
 
 def populateModel(user_id, level):
-"""
-Initialize the model of the user. 
-All word levels labled 1-6, 1 being the first 1 thousand, etc.
-Mastery_level is just a boolean value.
+  """
+  Initialize the model of the user. 
+  All word levels labled 1-6, 1 being the first 1 thousand, etc.
+  Mastery_level is just a boolean value.
 
-Keyword arguments:
-  user_id - the user id of type int
-  level - the user level from 1 to 6.
-"""
+  Keyword arguments:
+    user_id - the user id of type int
+    level - the user level from 1 to 6.
+  """
   words = Word.objects.get(difficulty__lte = level)
   for word in words:
     vector = UserWordKnowledge(user_id = user_id,
@@ -99,7 +85,7 @@ def scoreArticle(user_id, article_id):
   score = 0.0
   words = list(set(article.words()))
   for word in words:
-    if UserWordKnowledge.objects.get(user_id, word=word) not None:
+    if UserWordKnowledge.objects.get(user_id, word=word) != None:
       score += 1
   return score/len(article.words())
 
