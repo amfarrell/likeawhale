@@ -24,5 +24,6 @@ urlpatterns = patterns('',
     url(r'^$', ('articles.views.index')),
     url(r'^(?P<code>[^\.]+)/(?P<slug>[^\.]+)', ('articles.views.view_article')),
     url(r'^(?P<code>[^\.]+)/', ('articles.views.view_language')),
+
 #    url(r'^', ('articles.views.index')),
 )

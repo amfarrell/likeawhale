@@ -119,19 +119,3 @@ def rankArticles(user, titles):
   ranking.reverse()
   ranking = [title for score, title in ranking]
   return ranking
-
-
-
-
-""" 
-Later, more advanced modeling methods, possibly with 
-relevance, backoff, etc.
-"""
-# def callOnLookup(word, user_vectors):
-#   pass
-
-# def callOnView(word, user_vectors):
-#   pass
-
-# def mastery_update(word,command):
-#   pass

@@ -9,6 +9,14 @@ from articles.models import Word, Language, TranslatedPhrase
 from learning.models import UserWordKnowledge, UserLanguageKnowledge
 
 @login_required
+def pretest(request):
+  return render(request, 'pretest.html', {
+    #'': Language.objects.all(),
+    #'': Article.objects.all()
+    })
+
+
+@login_required
 def has_translated(request):
   """
   params:

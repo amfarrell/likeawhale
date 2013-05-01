@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Pretest{% endblock %}
+
+{% block content %}
+click on level, populate user vectors, route to article list
+
+<h2>Pick a Level</h2>
+<ul>
+
+<li id='1'>Level 1</li>
+<li id='2'>Level 2</li>
+<li id='3'>Level 3</li>
+<li id='4'>Level 4</li>
+<li id='5'>Level 5</li>
+<li id='6'>Level 6</li>
+
+</ul>
+
+
+
+{% block extra_js %} 
+// Functionality for level selection and vector model population
+
+$("#1").click(function() {
+  alert("Handler for .click() called.");
+});
+$.post('/learning/has_translated/', 
+{'word_id': word_id, 'target_lang':'{{translation.target_language.code}}', 'csrfmiddlewaretoken':$('#csrf input').val()});
+
+$("#2").click(function() {
+  alert("Handler for .click() called.");
+});
+
+$("#3").click(function() {
+  alert("Handler for .click() called.");
+});
+
+$("#4").click(function() {
+  alert("Handler for .click() called.");
+});
+
+$("#5").click(function() {
+  alert("Handler for .click() called.");
+});
+
+$("#6").click(function() {
+  alert("Handler for .click() called.");
+});
+
+
+
+
+
+// Functionality for level description display
+
+var text1 = "Designed for learners who can understand and
+use some simple Chinese characters and sentences to
+communicate, and prepares them for continuing their Chinese
+studies. In HSK 1 all characters are provided along with
+Pinyin.";
+
+var text2 = "Designed for learners who can use Chinese in a 
+simple and direct manner, applying it in a basic fashion to 
+their daily lives. In HSK 2 all characters are provided 
+along with Pinyin as well.";
+
+var text3 = "Designed for learners who can use Chinese to 
+serve the demands of their personal lives, studies and work, 
+and are capable of completing most of the communicative 
+tasks they experience during their Chinese tour.";
+
+var text4 = "Designed for learners who can discuss a 
+relatively wide range of topics in Chinese and are capable 
+of communicating with Chinese speakers at a high standard.";
+
+var text5 = "Designed for learners who can read Chinese 
+newspapers and magazines, watch Chinese films and are 
+capable of writing and delivering a lengthy speech in Chinese.";
+
+var text6 = "Designed for learners who can easily understand 
+any information communicated in Chinese and are capable of 
+smoothly expressing themselves in written or oral form.";
+
+
+var textList = [text1, text2, text3, text4, text5, text6];
+
+$('#1').hover(
+  function () {
+    $(this).append($("<span>" + textList[0] + "</span>"));
+  },
+  function () {
+    $(this).find("span:last").remove();
+  }
+);
+
+$('#2').hover(
+  function () {
+    $(this).append($("<span>" + textList[1] + "</span>"));
+  },
+  function () {
+    $(this).find("span:last").remove();
+  }
+);
+
+$('#3').hover(
+  function () {
+    $(this).append($("<span>" + textList[2] + "</span>"));
+  },
+  function () {
+    $(this).find("span:last").remove();
+  }
+);
+
+$('#4').hover(
+  function () {
+    $(this).append($("<span>" + textList[3] + "</span>"));
+  },
+  function () {
+    $(this).find("span:last").remove();
+  }
+);
+
+$('#5').hover(
+  function () {
+    $(this).append($("<span>" + textList[4] + "</span>"));
+  },
+  function () {
+    $(this).find("span:last").remove();
+  }
+);
+
+$('#6').hover(
+  function () {
+    $(this).append($("<span>" + textList[5] + "</span>"));
+  },
+  function () {
+    $(this).find("span:last").remove();
+  }
+);
+
+{% endblock %}
