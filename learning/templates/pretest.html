@@ -4,14 +4,31 @@
 {% block content %}
 click on level, populate user vectors, route to article list
 
+<head>
+  <style>
+  ul { margin-left:20px; color:blue; }
+  li { cursor:default; font-size: 14}
+  li.active { background:black;color:white; }
+  span { color:red; }
+  </style>
+
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+</head>
+<body>
+
 <h2>Pick a Level</h2>
 <ul>
 
-<li id='1'>Level 1</li>
-<li id='2'>Level 2</li>
-<li id='3'>Level 3</li>
-<li id='4'>Level 4</li>
-<li id='5'>Level 5</li>
+<li id='1'>Level 1</li><br>
+
+<li id='2'>Level 2</li><br>
+
+<li id='3'>Level 3</li><br>
+
+<li id='4'>Level 4</li><br>
+
+<li id='5'>Level 5</li><br>
+
 <li id='6'>Level 6</li>
 
 </ul>
@@ -23,7 +40,6 @@ click on level, populate user vectors, route to article list
 
 $("#1").click(function() {
   $.post('/learning/populateModel/', 'level': 1);
-
 });
 
 $("#2").click(function() {
@@ -51,34 +67,17 @@ $("#6").click(function() {
 
 
 // Functionality for level description display
+var text1 = " Designed for learners who can understand and \nuse some simple Chinese characters and sentences to \ncommunicate, and prepares them for continuing their Chinese \nstudies. In HSK 1 all characters are provided along with \nPinyin.";
 
-var text1 = "Designed for learners who can understand and
-use some simple Chinese characters and sentences to
-communicate, and prepares them for continuing their Chinese
-studies. In HSK 1 all characters are provided along with
-Pinyin.";
+var text2 = " Designed for learners who can use Chinese in a \nsimple and direct manner, applying it in a basic fashion to \ntheir daily lives. In HSK 2 all characters are provided \nalong with Pinyin as well.";
 
-var text2 = "Designed for learners who can use Chinese in a 
-simple and direct manner, applying it in a basic fashion to 
-their daily lives. In HSK 2 all characters are provided 
-along with Pinyin as well.";
+var text3 = " Designed for learners who can use Chinese to \nserve the demands of their personal lives, studies and work, \nand are capable of completing most of the communicative \ntasks they experience during their Chinese tour.";
 
-var text3 = "Designed for learners who can use Chinese to 
-serve the demands of their personal lives, studies and work, 
-and are capable of completing most of the communicative 
-tasks they experience during their Chinese tour.";
+var text4 = " Designed for learners who can discuss a \nrelatively wide range of topics in Chinese and are capable \nof communicating with Chinese speakers at a high standard.";
 
-var text4 = "Designed for learners who can discuss a 
-relatively wide range of topics in Chinese and are capable 
-of communicating with Chinese speakers at a high standard.";
+var text5 = " Designed for learners who can read Chinese \nnewspapers and magazines, watch Chinese films and are \ncapable of writing and delivering a lengthy speech in Chinese.";
 
-var text5 = "Designed for learners who can read Chinese 
-newspapers and magazines, watch Chinese films and are 
-capable of writing and delivering a lengthy speech in Chinese.";
-
-var text6 = "Designed for learners who can easily understand 
-any information communicated in Chinese and are capable of 
-smoothly expressing themselves in written or oral form.";
+var text6 = " Designed for learners who can easily understand \nany information communicated in Chinese and are capable of \nsmoothly expressing themselves in written or oral form.";
 
 
 var textList = [text1, text2, text3, text4, text5, text6];
