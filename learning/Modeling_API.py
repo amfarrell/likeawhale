@@ -1,17 +1,3 @@
-# Additional models to be added to model.py
-class UserWordKnowledge(models.Model):
-  user_id = models.ForeignKey(User) # need to add User model
-  word_id = models.ForeignKey(Word)
-  word = models.CharField(max_length=255)
-  mastery_level = models.IntegerField() # 0-100. 50 is default
-  last_view = models.DateField(auto_now_add = True)
-  view_count = models.IntegerField()
-  last_lookup = models.DateField(auto_now_add = True)
-  lookup_count = models.IntegerField()
-
-###-------------------------------------###
-
-
 from articles.models import Word, Language, Article
 from learning.models import UserWordKnowledge
 """
