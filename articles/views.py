@@ -16,14 +16,14 @@ from settings import DEBUG
 ARTICLES_PER_PAGE = 5
 DEFAULT_LANGUAGE = 'en'
 
-@login_required
+#@login_required
 def index(request):
   return render(request, 'index.html', {
     'languages': Language.objects.all(),
     'articles': Article.objects.all()[:ARTICLES_PER_PAGE]
     })
 
-@login_required
+#@login_required
 def view_language(request, code):
   language = get_object_or_404(Language, code = code)
   return render(request, 'language.html', {
@@ -32,8 +32,8 @@ def view_language(request, code):
     })
 
 
+#@login_required
 @ensure_csrf_cookie
-@login_required
 def view_article(request, code):
   if 'url' not in request.GET:
     return redirect(reverse(view_language, kwargs = {'code' : code}))
@@ -53,7 +53,7 @@ def view_article(request, code):
       ) for pointer in pointers]
     })
 
-@login_required
+#@login_required
 def view_wikipedia_article(request, code):
   try:
     topic_u = unicode(request.GET['topic'])

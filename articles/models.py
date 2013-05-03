@@ -12,6 +12,7 @@ import apiclient.discovery
 from django.db import models
 from django.db.models import permalink
 from django.core.urlresolvers import reverse
+from django.db.utils import DatabaseError
 
 from settings import GOOGLE_TRANSLATE_API_KEY
 from settings import DEBUG
@@ -51,21 +52,15 @@ class Article(models.Model):
   native_language = models.ForeignKey('articles.Language')
 
   def sentences(self):
-    return sent_tokenize(self.body)
+    return sent_tokenize(self.body, self.native_language.code)
 
   def words(self):
     #TODO inefficient.
-    for sentence in sent_tokenize(self.body):
+    for sentence in sent_tokenize(self.body, self.native_language.code):
       #TODO Google "stanford NLP chinese" and look for the word segmenter.
       #For now, we'll just treat each character as a separate word.
-      #import pdb;pdb.set_trace()
-      if self.native_language.alphabetic:
-        for text in word_tokenize(sentence):
-          yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(text))[0]
-      else:
-        for character in sentence:
-          if character not in ('\n',):
-            yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(character))[0]
+      for text in word_tokenize(sentence):
+        yield Word.objects.get_or_create(native_language = self.native_language, native_text = unicode(text))[0]
 
   def translated_to(self, target_language = 'en', force = False):
     if isinstance(target_language, basestring) :
@@ -168,7 +163,11 @@ class WordManager(models.Manager):
     return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))
 
   def get_or_create(self, **kwargs):
-    return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))
+    try:
+      return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))
+    except DatabaseError, e:
+      e.message += (" native text: %s" % kwargs['native_text'])
+      raise e
 
 class Word(models.Model):
   native_text = models.CharField(max_length = 124)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import re
+import random
+import os
 
 ###
 # XXX
