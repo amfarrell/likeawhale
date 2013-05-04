@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Create your views here.
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
@@ -48,8 +49,8 @@ def view_article(request, code):
         pointer._order,                                   #node_id
         pointer.phrase.first_native.pk,                   #word_id
         pointer.phrase.first_native.stem_id(),            #stem_id
-        pointer.phrase.first_native.native_text,          #native_text
-        pointer.phrase.first_target.native_text,          #target_text
+        pointer.start_punctuation + pointer.phrase.first_native.native_text + pointer.end_punctuation,          #native_text
+        pointer.start_punctuation + pointer.phrase.first_target.native_text + pointer.end_punctuation,          #target_text
       ) for pointer in pointers]
     })
 

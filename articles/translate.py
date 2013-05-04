@@ -1,7 +1,7 @@
 from nltk import SnowballStemmer
 from nltk import sent_tokenize as base_sent_tokenize
 from nltk import word_tokenize as base_word_tokenize
-from itertools import chain, ifilter
+from itertools import chain, ifilter, imap
 
 import apiclient.discovery
 from segment import SocketSeg
@@ -25,18 +25,13 @@ def word_tokenize(scentence, language_code = 'en', token_divider = DEFAULT_TOKEN
 
 def total_word_tokenize(paragraph, language_code = 'en', token_divider = DEFAULT_TOKEN_DIVIDER):
   if language_code == 'zh':
-#    segmented = [CHINESE_SEGMENTER.segment_text(line + '\n') for line in paragraph.split('\n')]
-#    segmented = ''.join(segmented)
-#    segmented = base_sent_tokenize(segmented)
-#    segmented = [base_word_tokenize(s) for s in segmented]
-#    segmented = [i for i in chain.from_iterable(segmented)]
-#    segmented = token_divider.join(segmented)
-#    return segmented
     return token_divider.join(
         ifilter(lambda token: token not in NONSENSE_TOKENS,
-          chain.from_iterable(
-            base_word_tokenize(sentence) for sentence in base_sent_tokenize(
-              ''.join(CHINESE_SEGMENTER.segment_text(line + '\n') for line in paragraph.split('\n'))
+          imap(lambda token: token.strip(), 
+            chain.from_iterable(
+              base_word_tokenize(sentence) for sentence in base_sent_tokenize(
+                ''.join(CHINESE_SEGMENTER.segment_text(line + '\n') for line in paragraph.split('\n'))
+              )
             )
           )
         )

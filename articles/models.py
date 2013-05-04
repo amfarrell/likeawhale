@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from itertools import chain, izip
 from translate import word_tokenize
 from translate import sent_tokenize #wordpunct_tokenize
@@ -85,17 +86,25 @@ class Article(models.Model):
     phrases_in_translation = [None,]
     stdout.write("the article has %s phrases." % len(tokenized_native))
     position = 0
+    punctuation = set(('.',',',')','(','*','=','$','-','--','—','——','，','：','、'))
+    previous_punctuation = []
     for native_text, target_text in izip(tokenized_native, tokenized_target):
+      if native_text in punctuation:
+        previous_punctuation.append(native_text)
+        continue
       native_word = Word.objects.create(native_language = self.native_language, native_text = unicode(native_text))
-      target_word = Word.objects.create(native_language = target_language, native_text = unicode(target_text))
-      translated_phrase = TranslatedPhrase.objects.get_or_create(first_native = native_word, first_target = target_word)[0]
+      if target_text.strip() == '':
+        translated_phrase = native_word.translated_to(target_language)
+      else:
+        target_word = Word.objects.create(native_language = target_language, native_text = unicode(target_text))
+        translated_phrase = TranslatedPhrase.objects.get_or_create(first_native = native_word, first_target = target_word)[0]
       phrases_in_translation.append(PhraseInTranslation.objects.get_or_create(
         displays_as = elements[0],
         previous = phrases_in_translation[-1],
         part_of = translation,
         position = position,
         phrase = translated_phrase,
-        start_punctuation = '',
+        start_punctuation = ''.join(previous_punctuation),
         end_punctuation = ''
         )[0])
       position += 1
@@ -140,7 +149,7 @@ class Translation(models.Model):
     unique_together = ('original_article', 'target_language',)
 
 class Stem(models.Model):
-  native_text = models.CharField(max_length = 124)
+  native_text = models.CharField(max_length = 256)
   native_language = models.ForeignKey('articles.Language')
   def __unicode__(self):
     return "%s" % self.native_text
@@ -175,7 +184,7 @@ class WordManager(models.Manager):
       raise e
 
 class Word(models.Model):
-  native_text = models.CharField(max_length = 124)
+  native_text = models.CharField(max_length = 256)
   native_stem = models.ForeignKey(Stem, blank = True, null = True)
   native_language = models.ForeignKey('articles.Language')
   difficulty = models.IntegerField(blank = True, null = True)
@@ -200,7 +209,7 @@ class Word(models.Model):
     if possible.count() > 0:
       if DEBUG:
         stdout.write(".")
-      return possible.get()
+      return possible.all()[0]
     else:
       if DEBUG:
         stdout.write("|")
@@ -253,8 +262,8 @@ class PhraseInTranslation(models.Model):
   part_of = models.ForeignKey(Translation)
   #TODO: Constraint that the translation's article is the same as the layout's article.
   phrase = models.ForeignKey(TranslatedPhrase)
-  end_punctuation = models.CharField(max_length = 4, null = True, blank = True, default = '')
-  start_punctuation = models.CharField(max_length = 4, null = True, blank = True, default = '')
+  end_punctuation = models.CharField(max_length = 64, null = True, blank = True, default = '')
+  start_punctuation = models.CharField(max_length = 64, null = True, blank = True, default = '')
   position = models.IntegerField() #TODO: add a check that the previous always has a position lower by 1 and is part of the same document.
 
   class Meta:
