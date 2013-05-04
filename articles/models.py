@@ -1,8 +1,8 @@
-from itertools import chain
+from itertools import chain, izip
 from translate import word_tokenize
 from translate import sent_tokenize #wordpunct_tokenize
 from translate import SnowballStemmer
-from translate import translate_word
+from translate import translate_text, translate_paragraph
 from urllib import urlencode
 from sys import stdout
 
@@ -79,21 +79,26 @@ class Article(models.Model):
   def _translate(self, target_language):
     LayoutElement.objects.filter(article = self, previous = None, position = 0, text = self.body, element_type = 'PARAGRAPH').delete()
     elements = [LayoutElement.objects.create(article = self, previous = None, position = 0, text = self.body, element_type = 'PARAGRAPH'), ]
-    words = self.words() #TODO: make this use iterators.
+    tokenized_native, tokenized_target, token_divider = translate_paragraph(self.body, native_language = self.native_language, target_language = target_language)
     translation = Translation.objects.get_or_create(original_article = self, target_language = target_language)[0]
-    phrases = [word.translated_to(target_language) for word in words]
+    PhraseInTranslation.objects.filter(part_of = translation).delete()
     phrases_in_translation = [None,]
-    stdout.write("the article has %s phrases." % len(phrases))
-    for position, phrase in enumerate(phrases):
-      phrases_in_translation.append(PhraseInTranslation.objects.create(
-        displays_as = elements[0], #TODO: actually pay attention to elements.
-        previous = phrases_in_translation[-1], 
+    stdout.write("the article has %s phrases." % len(tokenized_native))
+    position = 0
+    for native_text, target_text in izip(tokenized_native, tokenized_target):
+      native_word = Word.objects.create(native_language = self.native_language, native_text = unicode(native_text))
+      target_word = Word.objects.create(native_language = target_language, native_text = unicode(target_text))
+      translated_phrase = TranslatedPhrase.objects.get_or_create(first_native = native_word, first_target = target_word)[0]
+      phrases_in_translation.append(PhraseInTranslation.objects.get_or_create(
+        displays_as = elements[0],
+        previous = phrases_in_translation[-1],
         part_of = translation,
         position = position,
-        phrase = phrase,
-        start_punctuation = '', #TODO: actually pay attention to punctuation.
+        phrase = translated_phrase,
+        start_punctuation = '',
         end_punctuation = ''
-      ))
+        )[0])
+      position += 1
     return translation
 
   def get_absolute_url(self):
@@ -160,7 +165,7 @@ class WordManager(models.Manager):
     return kwargs
 
   def create(self, **kwargs):
-    return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))
+    return self.get_query_set().get_or_create(**self._process_kwargs(kwargs))[0]
 
   def get_or_create(self, **kwargs):
     try:
@@ -183,7 +188,7 @@ class Word(models.Model):
     return "[%s] %s" % (self.native_language.code, self.native_text)
 
   def __unicode__(self):
-    return unicode(self.native_text, 'utf-8')
+    return self.native_text.decode( 'utf-8')
 
   class Meta:
     unique_together = ('native_text', 'native_language',)
@@ -199,7 +204,7 @@ class Word(models.Model):
     else:
       if DEBUG:
         stdout.write("|")
-      target_text = translate_word(self.native_text, self.native_language.code, target_language.code)
+      target_text = translate_text(self.native_text, self.native_language.code, target_language.code)
       if target_language._has_stemmer:
         target_stemmer = SnowballStemmer(target_language.name.lower())
         target_stem = Stem.objects.get_or_create(native_language = target_language, native_text = target_stemmer.stem(target_text))[0]
@@ -209,7 +214,7 @@ class Word(models.Model):
       if target_stem and result.native_stem is None:
         result.native_stem = target_stem
         result.save()
-      translation = TranslatedPhrase.objects.create(first_target = result, first_native = self)
+      translation = TranslatedPhrase.objects.get_or_create(first_target = result, first_native = self)[0]
       return translation
 
   def stem_id(self):
