@@ -13,6 +13,7 @@ class Wiki2Plain:
     def __init__(self, wiki):
         self.wiki = wiki
         
+        self.links = []
         self.text = wiki
         self.text = self.unhtml(self.text)
         self.text = self.unwiki(self.text)
@@ -37,13 +38,13 @@ class Wiki2Plain:
         wiki = re.sub(r'(?i)\[\[Image:[^\[\]]*?\]\]', '', wiki)
         wiki = re.sub(r'(?i)\[\[File:[^\[\]]*?\]\]', '', wiki)
         wiki = re.sub(r'\[\[[^\[\]]*?\|([^\[\]]*?)\]\]', lambda m: m.group(1), wiki)
-        wiki = re.sub(r'\[\[([^\[\]]+?)\]\]', lambda m: m.group(1), wiki)
-        wiki = re.sub(r'\[\[([^\[\]]+?)\]\]', '', wiki)
         wiki = re.sub(r'(?i)File:[^\[\]]*?', '', wiki)
         wiki = re.sub(r'\[[^\[\]]*? ([^\[\]]*?)\]', lambda m: m.group(1), wiki)
         wiki = re.sub(r"''+", '', wiki)
         wiki = re.sub(r'(?m)^\*$', '', wiki)
-        
+        self.links = re.findall(r'\[\[([^\[\]]+?)\]\]', wiki)
+        wiki = re.sub(r'\[\[([^\[\]]+?)\]\]', lambda m: m.group(1), wiki)
+        wiki = re.sub(r'\[\[([^\[\]]+?)\]\]', '', wiki)
         return wiki
     
     def unhtml(self, html):

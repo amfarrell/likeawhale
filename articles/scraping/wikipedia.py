@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 
 ###
@@ -34,6 +35,21 @@ class Wikipedia:
             raise WikipediaError(e.reason)
         
         return result
+
+    def exists(self, topic, recurse = True):
+        try:
+            url = self.url_article % (self.lang, urllib.quote_plus(topic))
+            content = self.__fetch(url).read()
+            if content.upper().startswith('#REDIRECT'):
+              match = re.match('(?i)#REDIRECT \[\[([^\[\]]+)\]\]', content)
+              if recurse and match:
+                match = match.group(1)
+                return self.exists(match, False)
+              else:
+                return None
+        except WikipediaError:
+            return None 
+        return topic
     
     def article(self, article):
         url = self.url_article % (self.lang, urllib.quote_plus(article))

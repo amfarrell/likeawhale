@@ -42,9 +42,15 @@ var build = function () {
         .addClass('node')
         .addClass('word_'+words[i].word_id)
         .attr('id','node_'+i);
+      if (words[i]['w'] !== '') {
+        var native = $('<div>')
+          .addClass('native')
+          .html('<a href="/{{native_code}}/wiki?topic='+words[i].w+'">'+words[i].native+'</a>');
+      } else {
       var native = $('<div>')
         .addClass('native')
         .html(words[i].native+' ');
+      }
       var target = $('<div>')
         .addClass('target')
         .html(words[i].target+' ');
@@ -76,8 +82,8 @@ var build = function () {
   });
 };
 words = {
-  {% for node_id, word_id, stem_id, native_text, target_text in phrases %}
-  {{node_id}}: {'word_id': '{{word_id}}', 'native':'{{native_text}}', 'target':'{{target_text}}'},
+  {% for node_id, word_id, stem_id, native_text, target_text, wikipedia_topic in phrases %}
+  {{node_id}}: {'word_id': '{{word_id}}', 'native':'{{native_text}}', 'target':'{{target_text}}', 'w':'{{wikipedia_topic}}'},
   {% endfor %}
 }
 build();

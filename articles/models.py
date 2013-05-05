@@ -194,6 +194,8 @@ class Word(models.Model):
   native_stem = models.ForeignKey(Stem, blank = True, null = True)
   native_language = models.ForeignKey('articles.Language')
   difficulty = models.IntegerField(blank = True, null = True)
+  wikipedia_link = models.ForeignKey('articles.Word', blank = True, null = True)
+  has_wikipedia_link = models.NullBooleanField(blank = True, default = None)
 
   #maintain the constraint that if the language has a stemmer, the word needs a stem.
 

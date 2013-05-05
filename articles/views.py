@@ -42,15 +42,22 @@ def view_article(request, code):
   translation = article.translated_to(request.GET.get('target_lang', DEFAULT_LANGUAGE), force = False)
   pointers = PhraseInTranslation.objects.filter(part_of = translation).select_related(
       'phrase','phrase__first_target','phrase__first_native','phrase__first_target__native_text', 'phrase__first_native__native_text', 'phrase__first_native__native_stem').all()
+  def wiki_link(pointer):
+    if pointer.phrase.first_native.has_wikipedia_link is True:
+      return pointer.phrase.first_native.wikipedia_link.native_text 
+    else :
+      return ''
   return render(request, 'article.html', {
     'article': article,
     'translation': translation,
+    'native_code' : translation.original_article.native_language.code,
     'phrases' : [(
         pointer._order,                                   #node_id
         pointer.phrase.first_native.pk,                   #word_id
         pointer.phrase.first_native.stem_id(),            #stem_id
         pointer.start_punctuation + pointer.phrase.first_native.native_text + pointer.end_punctuation,          #native_text
         pointer.start_punctuation + pointer.phrase.first_target.native_text + pointer.end_punctuation,          #target_text
+        wiki_link(pointer),
       ) for pointer in pointers]
     })
 
