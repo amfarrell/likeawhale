@@ -3,7 +3,7 @@ from itertools import chain, izip
 from translate import word_tokenize
 from translate import sent_tokenize #wordpunct_tokenize
 from translate import SnowballStemmer
-from translate import translate_text, translate_paragraph
+from translate import translate_text, translate_tokens, total_word_tokenize
 from urllib import urlencode
 from sys import stdout
 
@@ -18,7 +18,7 @@ from django.db.utils import DatabaseError
 from settings import GOOGLE_TRANSLATE_API_KEY
 from settings import DEBUG
 
-
+UNKNOWN = '???'
 service = apiclient.discovery.build('translate', 'v2', developerKey=GOOGLE_TRANSLATE_API_KEY)
 
 def ifthere(word):
@@ -78,33 +78,39 @@ class Article(models.Model):
       return self._translate(target_language)
 
   def _translate(self, target_language):
+    punctuation_u = set(elem.decode('utf-8') for elem in ('.',',',')','(','*','=','$','-','--','—','——','，','：','、', '《', '》'))
     LayoutElement.objects.filter(article = self, previous = None, position = 0, text = self.body, element_type = 'PARAGRAPH').delete()
     elements = [LayoutElement.objects.create(article = self, previous = None, position = 0, text = self.body, element_type = 'PARAGRAPH'), ]
-    tokenized_native, tokenized_target, token_divider = translate_paragraph(self.body, native_language = self.native_language, target_language = target_language)
+    tokenized_native_u = total_word_tokenize(self.body, self.native_language.code)
+    token_set_u = set(tokenized_native_u) - set(punctuation_u)
+    known_tokens_u_u = dict((phrase.first_native.native_text, phrase.first_target.native_text) for phrase in TranslatedPhrase.objects.filter(first_native__native_language = self.native_language).exclude(first_target__native_text = UNKNOWN).select_related('first_native').all())
+    unknown_tokens_u = token_set_u - set(known_tokens_u_u)
+    translation_map_u_u = translate_tokens(unknown_tokens_u, self.native_language)
+    known_tokens_u_u.update(translation_map_u_u)
+    #tokenized_native, tokenized_target, token_divider = translate_paragraph(self.body, native_language = self.native_language, target_language = target_language)
     translation = Translation.objects.get_or_create(original_article = self, target_language = target_language)[0]
     PhraseInTranslation.objects.filter(part_of = translation).delete()
     phrases_in_translation = [None,]
-    stdout.write("the article has %s phrases." % len(tokenized_native))
+    stdout.write("the article has %s phrases." % len(tokenized_native_u))
     position = 0
-    punctuation = set(('.',',',')','(','*','=','$','-','--','—','——','，','：','、'))
-    previous_punctuation = []
-    for native_text, target_text in izip(tokenized_native, tokenized_target):
-      if native_text in punctuation:
-        previous_punctuation.append(native_text)
+    previous_punctuation_u = []
+    for native_text_u in tokenized_native_u:
+      if native_text_u in punctuation_u and len(punctuation_u) < 4:
+        previous_punctuation_u.append(native_text_u)
         continue
-      native_word = Word.objects.create(native_language = self.native_language, native_text = unicode(native_text))
-      if target_text.strip() == '':
-        translated_phrase = native_word.translated_to(target_language)
-      else:
-        target_word = Word.objects.create(native_language = target_language, native_text = unicode(target_text))
-        translated_phrase = TranslatedPhrase.objects.get_or_create(first_native = native_word, first_target = target_word)[0]
+      native_word = Word.objects.create(native_language = self.native_language, native_text = native_text_u)
+      target_text_u = known_tokens_u_u.get(native_text_u)
+      if target_text_u == None:
+        target_text_u = UNKNOWN
+      target_word = Word.objects.create(native_language = target_language, native_text = target_text_u)
+      translated_phrase = TranslatedPhrase.objects.get_or_create(first_native = native_word, first_target = target_word)[0]
       phrases_in_translation.append(PhraseInTranslation.objects.get_or_create(
         displays_as = elements[0],
         previous = phrases_in_translation[-1],
         part_of = translation,
         position = position,
         phrase = translated_phrase,
-        start_punctuation = ''.join(previous_punctuation),
+        start_punctuation = ''.join(previous_punctuation_u),
         end_punctuation = ''
         )[0])
       position += 1
