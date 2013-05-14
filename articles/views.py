@@ -14,7 +14,7 @@ from scraping import scrape_wikipedia
 
 from settings import DEBUG
 
-ARTICLES_PER_PAGE = 5
+ARTICLES_PER_PAGE = 20
 DEFAULT_LANGUAGE = 'en'
 
 #@login_required
